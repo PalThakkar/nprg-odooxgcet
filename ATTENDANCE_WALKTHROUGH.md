@@ -1,60 +1,54 @@
-# Attendance Tracking System Implementation
+# Attendance Tracking System & Admin Settings
 
-I have successfully implemented a comprehensive Attendance Tracking system that integrates seamlessly with the existing Employee and Admin dashboards.
+I have implemented a comprehensive Attendance Tracking system with advanced status logic (Late, Half-day) and an Admin Configuration panel.
 
 ## Features Implemented
 
-### 1. Employee Attendance Portal
+### 1. Admin Settings Panel (NEW)
+
+**Path:** `app/admin/settings/page.tsx`
+
+- **Configure Policies:** Admins can now start the official work day time, standard work hours, and grace periods.
+  - **Shift Start Time:** e.g., "09:00"
+  - **Grace Period:** e.g., 15 minutes
+  - **Work Hours:** e.g., 9 hours
+- These settings directly impact how employee attendance is graded.
+
+### 2. Advanced Attendance Logic
+
+- **Automated Late Marking:**
+  - If an employee checks in *after* (Shift Start Time + Grace Period), they are automatically marked as **'Late'**.
+- **Automated Half-day Marking:**
+  - If an employee's total work duration is less than **50% of Standard Work Hours**, they are automatically marked as **'Half-day'** upon checkout.
+
+### 3. Employee Attendance Portal
 
 **Path:** `app/employees/attendance/page.tsx`
 
-- **Real-time Check-in/Check-out:** Employees can check in and out with a single click.
+- **Real-time Check-in/Check-out:** Seamless state updates.
+- **Smart Status Badges:** Visual indicators for Present, Late, Half-day, and Checked-out statuses.
 - **Live Timer:** Shows duration since check-in.
-- **Status Tracking:** Visual indicators for Present, Late, Half-day, and Checked-out statuses.
-- **Attendance History:** Daily log of attendance activity including work hours.
-- **Monthly Overview:** Stats for days present, late/half-day, etc.
 
-### 2. Admin Attendance Dashboard
+### 4. Admin Attendance Dashboard
 
 **Path:** `app/admin/attendance/page.tsx`
 
 - **Daily Overview:** View attendance status for ALL employees for any selected date.
-- **Real-time Status:** accurate status updating based on Check-in/out and Leave data.
-- **Smart Filtering:** Filter list by name, email, or employee ID.
-- **Statistics:** Instant summary of Total Employees, Present, Absent, and On Leave counts for the day.
-- **Leave Integration:** Automatically detects and displays 'On Leave' status if a user has an approved leave request for the date.
-
-### 3. Backend API Routes
-
-- **`POST /api/attendance/check-in`**:
-  - Creates daily attendance record.
-  - Updates User status to 'present'.
-  - Prevents duplicate check-ins.
-- **`POST /api/attendance/check-out`**:
-  - Updates check-out time.
-  - Calculates `workHours`.
-  - Determines 'half-day' status automatically if hours < 4.
-  - Updates User status to 'absent'.
-- **`GET /api/attendance`**:
-  - Fetches employee's personal attendance history.
-  - calculates today's realtime status.
-- **`GET /api/admin/attendance`**:
-  - Aggregates data from Users, Attendance, and LeaveRequests.
-  - Provides a complete snapshots of the company's workforce for a given date.
+- **Real-time Status:** Updates based on Check-in/out and Leave data.
+- **Leave Integration:** Automatically detects 'On Leave' status.
 
 ## Visuals & Verification
 
 ### Database Changes
 
-- Leveraged existing `Attendance` model in `prisma/schema.prisma`.
-- No schema changes were necessary, ensuring stability.
+- Added `startTime`, `workHours`, `gracePeriod` to `Company` model.
+- Synced with `npx prisma db push`.
 
 ### Type Safety
 
 - All new code is strictly typed.
-- `npx tsc --noEmit` passed successfully.
+- `npx tsc --noEmit` checks passed.
 
 ## Next Steps
 
-- The system is ready to be used.
-- Future enhancements could include Geolocation tracking (columns already hinted in UI with MapPin) or IP restrictions.
+- Verify the flow by changing settings in Admin Panel and checking in as an employee.

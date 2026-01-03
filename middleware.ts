@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { verifyToken } from '@/lib/auth';
 
-const PROTECTED_ROUTES = ['/employees', '/api/data', '/api/leaves'];
+const PROTECTED_ROUTES = ['/employees', '/api/data', '/api/leaves', '/api/attendance'];
 const ADMIN_ROUTES = ['/admin', '/api/leaves/admin', '/api/salary/admin', '/api/admin'];
 
 export async function middleware(request: NextRequest) {
@@ -74,5 +74,6 @@ export const config = {
     '/api/leaves/:path*',
     '/api/salary/:path*',
     '/api/admin/:path*',
+    '/api/attendance/:path*',
   ],
 };

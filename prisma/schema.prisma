@@ -84,6 +84,9 @@ model Company {
   name          String
   initials      String
   logoUrl       String?
+  workHours     Float             @default(9)
+  startTime     String            @default("09:00") // HH:mm format
+  gracePeriod   Int               @default(15) // in minutes
   createdAt     DateTime          @default(now())
   updatedAt     DateTime          @updatedAt
   counters      EmployeeCounter[]

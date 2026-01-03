@@ -33,15 +33,42 @@ export async function POST(req: Request) {
     }
 
     const checkOutTime = new Date();
-    const workHours = (checkOutTime.getTime() - new Date(existingAttendance.checkIn).getTime()) / (1000 * 60 * 60);
+    // Calculate work hours
+    const durationMs = checkOutTime.getTime() - new Date(existingAttendance.checkIn).getTime();
+    const workHours = durationMs / (1000 * 60 * 60);
+
+    // Fetch company settings for Half-day logic
+    const user = await prisma.user.findUnique({
+        where: { id: userId },
+        include: { company: true }
+    });
+
+    let status = 'present';
+    if (user?.company) {
+        const standardHours = user.company.workHours || 9; // Default fallback
+        if (workHours < (standardHours / 2)) {
+            status = 'half-day';
+        } else {
+             // If not half-day, keep existing status (which might be Late) or default to present
+             // We need to fetch the existing status first? 'existingAttendance' has it.
+             status = existingAttendance.status === 'late' ? 'late' : 'present';
+        }
+    } else {
+        // Fallback default logic
+        if (workHours < 4) {
+            status = 'half-day';
+        } else {
+             status = existingAttendance.status === 'late' ? 'late' : 'present';
+        }
+    }
 
     // Update attendance record
     const attendance = await prisma.attendance.update({
         where: { id: existingAttendance.id },
         data: {
             checkOut: checkOutTime,
-            workHours,
-            status: workHours < 4 ? 'half-day' : 'present' // Simple logic: < 4 hours is half-day
+            workHours: parseFloat(workHours.toFixed(2)),
+            status: status
         }
     });
 

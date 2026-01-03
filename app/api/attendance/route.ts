@@ -34,29 +34,40 @@ export async function GET(req: Request) {
     });
 
     // Check if checked in today
-    const today = new Date();
-    today.setHours(0,0,0,0);
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    
-    const todayAttendance = await prisma.attendance.findFirst({
+    // 1. Check for any active (open) session first
+    const activeAttendance = await prisma.attendance.findFirst({
         where: {
             userId,
-            date: {
-                gte: today,
-                lt: tomorrow
-            }
-        },
-        orderBy: { checkIn: 'desc' }
+            checkOut: null
+        }
     });
 
+    // 2. If no active session, check if we already completed today
+    let todayAttendance = activeAttendance;
+    
+    if (!activeAttendance) {
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+
+        todayAttendance = await prisma.attendance.findFirst({
+            where: {
+                userId,
+                date: {
+                    gte: today,
+                    lt: tomorrow
+                }
+            },
+            orderBy: { checkIn: 'desc' }
+        });
+    }
+
     let todayStatus = 'not-checked-in';
-    if (todayAttendance) {
-        if (!todayAttendance.checkOut) {
-            todayStatus = 'checked-in';
-        } else {
-             todayStatus = 'checked-out';
-        }
+    if (activeAttendance) {
+        todayStatus = 'checked-in';
+    } else if (todayAttendance?.checkOut) {
+        todayStatus = 'checked-out';
     }
 
     return NextResponse.json({ 

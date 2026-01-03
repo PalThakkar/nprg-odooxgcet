@@ -49,7 +49,7 @@ export default function AttendancePage() {
   const fetchAttendance = async () => {
     try {
       setLoading(true);
-      const res = await fetch("/api/attendance");
+      const res = await fetch("/api/attendance", { cache: "no-store", headers: { 'Pragma': 'no-cache' } });
       const data = await res.json();
 
       if (res.ok) {
@@ -145,10 +145,10 @@ export default function AttendancePage() {
                     </h2>
                   </div>
                   <div className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest border ${todayStatus === 'checked-in'
-                      ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500'
-                      : todayStatus === 'checked-out'
-                        ? 'bg-blue-500/10 border-blue-500/20 text-blue-500'
-                        : 'bg-slate-500/10 border-slate-500/20 text-slate-400'
+                    ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500'
+                    : todayStatus === 'checked-out'
+                      ? 'bg-blue-500/10 border-blue-500/20 text-blue-500'
+                      : 'bg-slate-500/10 border-slate-500/20 text-slate-400'
                     }`}>
                     {todayStatus === 'not-checked-in' ? 'Not Checked In' : todayStatus.replace('-', ' ')}
                   </div>

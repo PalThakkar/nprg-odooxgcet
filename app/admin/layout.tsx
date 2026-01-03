@@ -18,6 +18,7 @@ export default async function DashboardLayout({
         { label: "Employees", href: "/admin/employees" },
         { label: "Leave Approval", href: "/admin/leaves" },
         { label: "Attendance", href: "/admin/attendance" },
+        { label: "Settings", href: "/admin/settings" },
       ]
       : []),
   ];

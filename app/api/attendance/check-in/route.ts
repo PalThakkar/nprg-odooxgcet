@@ -32,13 +32,38 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: 'Already checked in for today' }, { status: 400 });
     }
 
+    // Fetch user's company settings
+    const user = await prisma.user.findUnique({
+        where: { id: userId },
+        include: { company: true }
+    });
+
+    let status = 'present';
+    const now = new Date();
+    
+    // Check for "Late" status
+    if (user?.company) {
+        const { startTime = "09:00", gracePeriod = 15 } = user.company; // Default fallback
+        const [startHour, startMinute] = (startTime || "09:00").split(':').map(Number);
+        
+        const shiftStart = new Date(now);
+        shiftStart.setHours(startHour, startMinute, 0, 0);
+        
+        const lateThreshold = new Date(shiftStart);
+        lateThreshold.setMinutes(lateThreshold.getMinutes() + gracePeriod);
+        
+        if (now > lateThreshold) {
+            status = 'late';
+        }
+    }
+
     // Create attendance record
     const attendance = await prisma.attendance.create({
         data: {
             userId,
-            checkIn: new Date(),
-            status: 'present',
-            date: new Date()
+            checkIn: now,
+            status: status, // 'present' or 'late'
+            date: now 
         }
     });
 
