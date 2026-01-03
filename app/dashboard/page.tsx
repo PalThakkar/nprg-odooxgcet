@@ -1,29 +1,50 @@
 import { headers } from 'next/headers';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 export default async function DashboardPage() {
     const headersList = await headers();
     const userId = headersList.get('x-user-id');
     const userRole = headersList.get('x-user-role');
+    const loginId = headersList.get('x-user-login-id');
 
     return (
-        <div className="p-8">
-            <h1 className="text-3xl font-bold mb-4">Dashboard</h1>
-            <div className="bg-white p-6 rounded-lg shadow border">
-                <p className="text-lg">Welcome back!</p>
-                <div className="mt-4 p-4 bg-gray-50 rounded space-y-2">
-                    <p><strong>User ID:</strong> {userId}</p>
-                    <p><strong>Login ID:</strong> <span className="font-mono bg-zinc-200 px-2 py-0.5 rounded">{headersList.get('x-user-login-id') || 'N/A'}</span></p>
-                    <p><strong>Role:</strong> <span className="inline-block px-2 py-1 text-sm font-semibold rounded bg-blue-100 text-blue-800 uppercase">{userRole}</span></p>
-                </div>
-
-                {userRole === 'admin' && (
-                    <div className="mt-8 border-t pt-4">
-                        <h2 className="text-xl font-bold text-red-600 mb-2">Admin Area</h2>
-                        <p>You have access to sensitive controls.</p>
-                        {/* Admin controls would go here */}
-                    </div>
-                )}
+        <div className="space-y-6">
+            <div className="flex justify-between items-center">
+                <h1 className="text-3xl font-bold tracking-tight">Overview</h1>
+                <Button>Download Report</Button>
             </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <Card className="border-none shadow-sm">
+                    <CardContent className="p-6">
+                        <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Profile Status</p>
+                        <p className="text-2xl font-bold mt-2 text-green-600">Active</p>
+                    </CardContent>
+                </Card>
+            </div>
+
+            <Card className="border-none shadow-sm">
+                <CardHeader>
+                    <CardTitle>Welcome back, {userRole === 'admin' ? 'Administrator' : 'Employee'}</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <p className="text-muted-foreground">You are currently logged in as <span className="font-mono bg-zinc-100 px-2 py-0.5 rounded text-zinc-900">{loginId}</span></p>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                        <Card className="bg-indigo-50 border-indigo-100 border shadow-none">
+                            <CardContent className="p-4 flex items-center justify-between">
+                                <div>
+                                    <p className="font-bold text-indigo-900">Request Time Off</p>
+                                    <p className="text-xs text-indigo-700">Submit a new leave request.</p>
+                                </div>
+                                <Button size="sm" className="bg-indigo-600">Submit</Button>
+                            </CardContent>
+                        </Card>
+                    </div>
+                </CardContent>
+            </Card>
         </div>
     );
 }
+

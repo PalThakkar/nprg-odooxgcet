@@ -13,9 +13,17 @@ export async function POST(req: Request) {
     }
 
     // Check if user exists
-    const existing = await prisma.user.findUnique({ where: { email } });
-    if (existing) {
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+    if (existingUser) {
       return NextResponse.json({ error: 'User with this email already exists' }, { status: 409 });
+    }
+
+    // Check if company exists
+    const existingCompany = await prisma.company.findFirst({
+      where: { name: { equals: companyName, mode: 'insensitive' } }
+    });
+    if (existingCompany) {
+      return NextResponse.json({ error: 'Company with this name already exists' }, { status: 409 });
     }
 
     const { user, loginId } = await prisma.$transaction(async (tx) => {

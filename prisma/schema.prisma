@@ -24,20 +24,23 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  data AppData[]
+  data          AppData[]
+  leaveRequests LeaveRequest[]
+  salaryInfo    SalaryInfo?
 
   @@map("users")
 }
 
 model Company {
-  id        String            @id @default(uuid())
-  name      String
-  initials  String // For Login ID generation: "OI" -> Odoo India
-  logoUrl   String?
-  users     User[]
-  counters  EmployeeCounter[]
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
+  id            String            @id @default(uuid())
+  name          String
+  initials      String // For Login ID generation: "OI" -> Odoo India
+  logoUrl       String?
+  users         User[]
+  counters      EmployeeCounter[]
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  leaveRequests LeaveRequest[]
 
   @@map("companies")
 }
@@ -60,6 +63,58 @@ model Role {
   users       User[]
 
   @@map("roles")
+}
+
+model LeaveRequest {
+  id           String      @id @default(uuid())
+  userId       String
+  user         User        @relation(fields: [userId], references: [id])
+  companyId    String
+  company      Company     @relation(fields: [companyId], references: [id])
+  type         String // e.g. "SICK", "VACATION", "PERSONAL"
+  startDate    DateTime
+  endDate      DateTime
+  status       LeaveStatus @default(PENDING)
+  reason       String?
+  adminComment String?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@map("leave_requests")
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model SalaryInfo {
+  id           String @id @default(uuid())
+  userId       String @unique
+  user         User   @relation(fields: [userId], references: [id])
+  monthlyWage  Float
+  yearlyWage   Float
+  workingDays  Int    @default(5)
+  workingHours Float  @default(8)
+
+  // Salary Components
+  basic             Float
+  hra               Float
+  standardAllowance Float
+  performanceBonus  Float
+  lta               Float
+  fixedAllowance    Float
+
+  // Deductions
+  pfEmployee      Float
+  pfEmployer      Float
+  professionalTax Float @default(200)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("salary_info")
 }
 
 model AppData {

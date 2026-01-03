@@ -2,8 +2,8 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { verifyToken } from '@/lib/auth';
 
-const PROTECTED_ROUTES = ['/dashboard', '/api/data']; // Add more path prefixes
-const ADMIN_ROUTES = ['/dashboard/admin'];
+const PROTECTED_ROUTES = ['/dashboard', '/api/data', '/api/leaves']; // Add more path prefixes
+const ADMIN_ROUTES = ['/dashboard/admin', '/api/leaves/admin', '/api/salary/admin'];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -52,6 +52,9 @@ export async function middleware(request: NextRequest) {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set('x-user-id', (payload as any).id);
   requestHeaders.set('x-user-role', (payload as any).role);
+  if ((payload as any).companyId) {
+    requestHeaders.set('x-user-company-id', (payload as any).companyId);
+  }
   if ((payload as any).loginId) {
     requestHeaders.set('x-user-login-id', (payload as any).loginId);
   }
@@ -67,6 +70,7 @@ export const config = {
   matcher: [
     '/dashboard/:path*',
     '/api/data/:path*',
-    // Add other protected routes
+    '/api/leaves/:path*',
+    '/api/salary/:path*',
   ],
 };
