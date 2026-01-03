@@ -13,8 +13,7 @@ export default function DashboardLayout({
 
   const navItems = [
     { label: "Dashboard", href: "/admin/employees" },
-<<<<<<< HEAD
-    ...(userRole?.toLowerCase() === "admin"
+    ...(user?.role?.toLowerCase() === "admin"
       ? [
         { label: "Employees", href: "/admin/employees" },
         { label: "Leave Approval", href: "/admin/leaves" },
@@ -22,10 +21,6 @@ export default function DashboardLayout({
         { label: "Settings", href: "/admin/settings" },
       ]
       : []),
-=======
-    { label: "Employees", href: "/admin/employees" },
-    { label: "Leave Approval", href: "/admin/leaves" },
->>>>>>> 3e215d45055be12feaa5ead47654800aef86bc4c
   ];
 
   return (
