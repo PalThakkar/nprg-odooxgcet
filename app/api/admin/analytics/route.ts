@@ -51,13 +51,13 @@ export async function GET() {
         });
 
         const pendingLeaves = leaveStats.find(
-            (s) => s.status.toUpperCase() === "PENDING"
+            (s: { status: string }) => s.status.toUpperCase() === "PENDING"
         )?._count?.id || 0;
         const approvedLeaves = leaveStats.find(
-            (s) => s.status.toUpperCase() === "APPROVED"
+            (s: { status: string }) => s.status.toUpperCase() === "APPROVED"
         )?._count?.id || 0;
         const rejectedLeaves = leaveStats.find(
-            (s) => s.status.toUpperCase() === "REJECTED"
+            (s: { status: string }) => s.status.toUpperCase() === "REJECTED"
         )?._count?.id || 0;
 
         // Get salary statistics
