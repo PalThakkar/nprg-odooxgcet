@@ -12,14 +12,15 @@ export default function DashboardLayout({
   const { user } = useAuth();
 
   const navItems = [
+    { label: "Home", href: "/" },
     { label: "Dashboard", href: "/admin/employees" },
     ...(user?.role?.toLowerCase() === "admin"
       ? [
-        { label: "Employees", href: "/admin/employees" },
-        { label: "Leave Approval", href: "/admin/leaves" },
-        { label: "Attendance", href: "/admin/attendance" },
-        { label: "Settings", href: "/admin/settings" },
-      ]
+          { label: "Employees", href: "/admin/employees" },
+          { label: "Leave Approval", href: "/admin/leaves" },
+          { label: "Attendance", href: "/admin/attendance" },
+          { label: "Settings", href: "/admin/settings" },
+        ]
       : []),
   ];
 
