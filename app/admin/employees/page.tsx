@@ -11,11 +11,9 @@ import {
   Search as SearchIcon,
   Loader2,
   ArrowLeft,
+  User,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
-import Link from "next/link";
 
 interface Employee {
   id: string;
@@ -37,24 +35,22 @@ export default function EmployeeList() {
     null
   );
 
-    const fetchEmployees = async () => {
-        try {
-            const res = await fetch('/api/admin/employees');
-            console.log('Response status:', res.status);
-            const data = await res.json();
-            console.log('Fetch Employees Data:', data);
-            if (!res.ok) {
-                console.error('API Error:', data.error || data);
-            }
-            if (data.employees) {
-                setEmployees(data.employees);
-            }
-        } catch (error) {
-            console.error('Failed to fetch employees:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
+  const fetchEmployees = async () => {
+    try {
+      const res = await fetch('/api/admin/employees');
+      const data = await res.json();
+      if (!res.ok) {
+        console.error('API Error:', data.error || data);
+      }
+      if (data.employees) {
+        setEmployees(data.employees);
+      }
+    } catch (error) {
+      console.error('Failed to fetch employees:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchEmployees();
@@ -64,64 +60,49 @@ export default function EmployeeList() {
     (emp) =>
       emp.id !== user?.id && // Exclude current admin user
       ((emp.name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (emp.loginId || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (emp.email || "").toLowerCase().includes(searchQuery.toLowerCase()))
+        (emp.loginId || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (emp.email || "").toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   return (
-    <div className="space-y-8 p-6 lg:p-10 max-w-7xl mx-auto min-h-screen">
+    <div className="space-y-8 p-6 lg:p-10 max-w-7xl mx-auto min-h-screen bg-transparent relative z-10">
+
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div className="flex items-center gap-4">
-          <div
-            className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg"
-            style={{
-              backgroundColor: "var(--primary)",
-              boxShadow: "0 10px 15px -3px rgba(32, 229, 178, 0.1)",
-            }}
-          >
-            <Users
-              className="w-6 h-6"
-              style={{ color: "var(--primary-foreground)" }}
-            />
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b-2 border-slate-800 pb-8 bg-slate-950/80 backdrop-blur-sm">
+        <div className="flex items-center gap-6">
+          <div className="w-16 h-16 border-2 border-primary bg-slate-900 flex items-center justify-center shadow-[4px_4px_0px_0px_var(--color-primary)]">
+            <Users className="w-8 h-8 text-primary" />
           </div>
           <div>
-            <h1
-              className="text-3xl font-black tracking-tight"
-              style={{ color: "var(--foreground)" }}
-            >
+            <h1 className="text-4xl font-black uppercase tracking-tighter text-white drop-shadow-[4px_4px_0px_var(--color-slate-800)]">
               Employee Hub
             </h1>
-            <p
-              className="font-medium"
-              style={{ color: "var(--muted-foreground)" }}
-            >
-              Manage your workforce at Odoo India
+            <p className="text-slate-400 font-bold uppercase tracking-widest text-sm">
+              Manage your workforce
             </p>
           </div>
         </div>
 
-        <Button
+        <button
           onClick={() => setIsAdding(!isAdding)}
-          style={{
-            backgroundColor: isAdding ? "var(--card)" : "var(--primary)",
-            color: isAdding ? "var(--foreground)" : "var(--primary-foreground)",
-            border: isAdding ? `1px solid var(--border)` : "none",
-          }}
-          className="h-12 px-6 rounded-2xl font-bold transition-all active:scale-95 shadow-lg hover:opacity-90"
+          className={`h-12 px-6 border-2 font-black uppercase tracking-widest flex items-center gap-2 transition-all duration-200
+            ${isAdding
+              ? 'bg-slate-900 border-slate-600 text-slate-400 hover:bg-slate-800'
+              : 'bg-primary border-primary text-slate-950 shadow-[4px_4px_0px_0px_var(--color-slate-200)] hover:shadow-[6px_6px_0px_0px_var(--color-slate-200)] hover:-translate-y-0.5'
+            }`}
         >
           {isAdding ? (
-            <div className="flex items-center gap-2">
+            <>
               <ArrowLeft className="w-5 h-5" />
               <span>Back to Directory</span>
-            </div>
+            </>
           ) : (
-            <div className="flex items-center gap-2">
+            <>
               <Plus className="w-5 h-5" />
               <span>Register Employee</span>
-            </div>
+            </>
           )}
-        </Button>
+        </button>
       </div>
 
       {isAdding ? (
@@ -134,47 +115,24 @@ export default function EmployeeList() {
           />
         </div>
       ) : (
-        <div className="space-y-6 animate-in fade-in duration-500">
+        <div className="space-y-8 animate-in fade-in duration-500">
           {/* Controls */}
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col sm:flex-row gap-4 p-4 bg-slate-900 border-2 border-slate-800 shadow-[4px_4px_0px_0px_var(--color-slate-800)]">
             <div className="relative flex-1 group">
-              <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-indigo-600 transition-colors" />
+              <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-primary transition-colors" />
               <input
                 type="text"
-                placeholder="Search by name, ID or email..."
-                style={
-                  {
-                    backgroundColor: "var(--card)",
-                    borderColor: "var(--border)",
-                    color: "var(--foreground)",
-                    "--tw-ring-color": "var(--primary)",
-                  } as React.CSSProperties & { "--tw-ring-color": string }
-                }
-                className="w-full rounded-2xl py-3.5 pl-11 pr-4 focus:ring-4 focus:border-current transition-all outline-none text-sm shadow-sm border"
+                placeholder="SEARCH MEMBERS..."
+                className="w-full bg-slate-950 border-2 border-slate-800 py-3 pl-11 pr-4 text-white placeholder-slate-600 focus:outline-none focus:border-primary focus:shadow-[4px_4px_0px_0px_var(--color-primary)] transition-all font-mono uppercase text-sm"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-            <div
-              className="flex rounded-2xl p-1 shadow-sm shrink-0"
-              style={{
-                backgroundColor: "var(--card)",
-                border: `1px solid var(--border)`,
-              }}
-            >
-              <button
-                className="p-2.5 rounded-xl shadow-sm"
-                style={{
-                  backgroundColor: "var(--primary)",
-                  color: "var(--primary-foreground)",
-                }}
-              >
+            <div className="flex border-2 border-slate-800 bg-slate-950 p-1 gap-1">
+              <button className="p-2 bg-primary text-slate-950 border-2 border-primary shadow-sm">
                 <LayoutGrid className="w-5 h-5" />
               </button>
-              <button
-                className="p-2.5 rounded-xl transition-colors hover:opacity-80"
-                style={{ color: "var(--muted-foreground)" }}
-              >
+              <button className="p-2 text-slate-500 hover:bg-slate-800 hover:text-white transition-colors">
                 <List className="w-5 h-5" />
               </button>
             </div>
@@ -182,49 +140,27 @@ export default function EmployeeList() {
 
           {/* Content Section */}
           {loading ? (
-            <div className="flex flex-col items-center justify-center py-32 space-y-4">
-              <Loader2
-                className="w-10 h-10 animate-spin"
-                style={{ color: "var(--primary)" }}
-              />
-              <p
-                className="font-medium animate-pulse"
-                style={{ color: "var(--muted-foreground)" }}
-              >
-                Scanning workforce directory...
+            <div className="flex flex-col items-center justify-center py-32 space-y-6">
+              <Loader2 className="w-12 h-12 animate-spin text-primary" />
+              <p className="font-bold text-slate-500 uppercase tracking-widest animate-pulse">
+                Scanning directory...
               </p>
             </div>
           ) : filteredEmployees.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
               {filteredEmployees.map((emp) => (
-                <Card
+                <div
                   key={emp.id}
                   onClick={() => setSelectedEmployee(emp)}
-                  style={{
-                    backgroundColor: "var(--card)",
-                    borderColor: "var(--border)",
-                    boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1)",
-                  }}
-                  className="rounded-3xl shadow-sm hover:shadow-xl transition-all group cursor-pointer overflow-hidden relative border"
+                  className="group relative bg-slate-900 border-2 border-slate-800 p-6 transition-all duration-200 cursor-pointer hover:-translate-y-1 hover:border-primary hover:shadow-[8px_8px_0px_0px_var(--color-primary)]"
                 >
-                  <CardContent className="p-6">
-                    <div
-                      className="absolute top-0 right-0 w-24 h-24 rounded-full -mr-8 -mt-8 group-hover:scale-150 transition-transform duration-500"
-                      style={{
-                        backgroundColor: "var(--primary)",
-                        opacity: 0.05,
-                      }}
-                    />
+                  <div className="absolute top-0 right-0 w-24 h-24 border-l-2 border-b-2 border-slate-800 bg-slate-950/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                    <span className="text-4xl text-slate-800 font-black">#</span>
+                  </div>
 
-                    <div className="flex items-center gap-4 mb-6">
-                      <div
-                        className="w-16 h-16 rounded-2xl border-2 shadow-sm flex items-center justify-center font-black text-xl overflow-hidden group-hover:scale-105 transition-transform"
-                        style={{
-                          backgroundColor: "var(--primary)",
-                          borderColor: "var(--card)",
-                          color: "var(--primary-foreground)",
-                        }}
-                      >
+                  <div className="flex flex-col gap-6 relative z-10">
+                    <div className="flex items-start justify-between">
+                      <div className="w-16 h-16 border-2 border-slate-700 bg-slate-800 flex items-center justify-center overflow-hidden">
                         {emp.avatarUrl ? (
                           <img
                             src={emp.avatarUrl}
@@ -232,125 +168,59 @@ export default function EmployeeList() {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          emp.name?.substring(0, 1).toUpperCase()
+                          <span className="text-2xl font-black text-slate-600">
+                            {emp.name?.substring(0, 1).toUpperCase()}
+                          </span>
                         )}
                       </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span
-                            className="w-2 h-2 rounded-full shadow-sm shadow-current"
-                            style={{
-                              backgroundColor:
-                                emp.status === "present"
-                                  ? "var(--secondary)"
-                                  : "var(--muted)",
-                            }}
-                          />
-                          <p
-                            className="text-xs font-bold uppercase tracking-widest"
-                            style={{ color: "var(--muted-foreground)" }}
-                          >
-                            {emp.status || "Offline"}
-                          </p>
-                        </div>
-                        <h3
-                          className="font-bold transition-colors uppercase truncate max-w-[120px] group-hover:opacity-80"
-                          style={{ color: "var(--foreground)" }}
-                        >
-                          {emp.name}
-                        </h3>
+                      <div className={`px-2 py-1 text-[10px] font-black uppercase tracking-widest border-2 ${emp.status === 'present'
+                          ? 'bg-emerald-500/10 border-emerald-500 text-emerald-500'
+                          : 'bg-slate-800 border-slate-600 text-slate-500'
+                        }`}>
+                        {emp.status || "OFFLINE"}
                       </div>
                     </div>
 
-                    <div
-                      className="space-y-3 pt-4"
-                      style={{ borderTop: `1px solid var(--border)` }}
-                    >
-                      <div
-                        className="flex justify-between items-center p-2 rounded-xl"
-                        style={{
-                          backgroundColor: "var(--primary)",
-                          opacity: 0.1,
-                          border: `1px solid var(--border)`,
-                        }}
-                      >
-                        <span
-                          className="text-[10px] font-bold uppercase tracking-wider"
-                          style={{ color: "var(--muted-foreground)" }}
-                        >
-                          Employee ID
-                        </span>
-                        <span
-                          className="text-xs font-mono font-black"
-                          style={{ color: "var(--primary)" }}
-                        >
-                          {emp.loginId}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2 px-1">
-                        <div
-                          className="w-6 h-6 rounded-lg flex items-center justify-center"
-                          style={{ backgroundColor: "var(--border)" }}
-                        >
-                          <Users
-                            className="w-3.5 h-3.5"
-                            style={{ color: "var(--muted-foreground)" }}
-                          />
-                        </div>
-                        <span
-                          className="text-xs font-semibold capitalize"
-                          style={{ color: "var(--muted-foreground)" }}
-                        >
-                          {emp.role?.name || "Employee"}
-                        </span>
-                      </div>
+                    <div>
+                      <h3 className="text-lg font-black text-white uppercase truncate mb-1 group-hover:text-primary transition-colors">
+                        {emp.name}
+                      </h3>
+                      <p className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                        <Users className="w-3 h-3" />
+                        {emp.role?.name || "Employee"}
+                      </p>
                     </div>
-                  </CardContent>
-                </Card>
+
+                    <div className="pt-4 border-t-2 border-slate-800 flex items-center justify-between">
+                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                        ID: <span className="text-white font-mono text-xs">{emp.loginId}</span>
+                      </span>
+                    </div>
+                  </div>
+                </div>
               ))}
             </div>
           ) : (
-            <div
-              className="rounded-[40px] border-2 border-dashed py-32 text-center animate-in zoom-in duration-500"
-              style={{
-                backgroundColor: "var(--card)",
-                borderColor: "var(--border)",
-              }}
-            >
-              <div
-                className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6"
-                style={{ backgroundColor: "var(--border)" }}
-              >
-                <SearchIcon
-                  className="w-10 h-10"
-                  style={{ color: "var(--muted-foreground)" }}
-                />
+            <div className="border-2 border-dashed border-slate-700 bg-slate-900/50 py-32 text-center">
+              <div className="w-20 h-20 border-2 border-slate-700 bg-slate-800 flex items-center justify-center mx-auto mb-6 rotate-3">
+                <SearchIcon className="w-10 h-10 text-slate-500" />
               </div>
-              <h3
-                className="text-xl font-bold mb-2"
-                style={{ color: "var(--foreground)" }}
-              >
-                Nobody found here
+              <h3 className="text-xl font-black text-white uppercase mb-2 tracking-wide">
+                No Results Found
               </h3>
-              <p
-                className="max-w-sm mx-auto"
-                style={{ color: "var(--muted-foreground)" }}
-              >
-                Try a different search term or register a new team member to
-                populate the directory.
+              <p className="text-slate-400 font-medium max-w-sm mx-auto mb-8">
+                Try a different search term or register a new team member.
               </p>
-              <Button
-                variant="ghost"
-                style={{ color: "var(--primary)" }}
-                className="mt-6 hover:opacity-80 font-bold"
+              <button
+                className="btn-secondary"
                 onClick={() => setSearchQuery("")}
               >
-                Clear current search
-              </Button>
+                Clear Filter
+              </button>
             </div>
           )}
 
-          {/* Floating Tile */}
+          {/* Floating Tile Detail View - Keeping internal component structure but passing brutalist toggle if supported */}
           {selectedEmployee && (
             <EmployeeDetailTile
               employee={selectedEmployee}

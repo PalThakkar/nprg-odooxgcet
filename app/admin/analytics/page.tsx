@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Loader2, TrendingUp, TrendingDown, Users, Calendar, AlertCircle, DollarSign, FileText } from "lucide-react";
 
 interface AnalyticsData {
     overview: {
@@ -148,234 +149,139 @@ export default function AnalyticsPage() {
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-[60vh]">
-                <div
-                    className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2"
-                    style={{ borderColor: "var(--color-teal-500)" }}
-                ></div>
+                <div className="flex flex-col items-center">
+                    <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
+                    <div className="font-black uppercase text-xl text-white tracking-widest">Generating Insights...</div>
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="p-8 space-y-8">
+        <div className="p-4 md:p-8 min-h-screen font-mono bg-transparent relative z-10">
             {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 border-b-2 border-slate-800 pb-8 bg-slate-950/80 backdrop-blur-sm">
                 <div>
-                    <h1
-                        className="text-3xl font-black tracking-tight"
-                        style={{ color: "var(--color-white)" }}
-                    >
+                    <h1 className="text-4xl font-black uppercase tracking-tighter text-white drop-shadow-[4px_4px_0px_var(--color-slate-800)]">
                         Analytics & Reports
                     </h1>
-                    <p style={{ color: "var(--color-slate-400)" }}>
-                        View comprehensive insights and generate reports
+                    <p className="text-slate-400 font-bold uppercase tracking-widest text-sm mt-1">
+                        Data-driven insights
                     </p>
                 </div>
             </div>
 
             {/* Tabs */}
-            <div
-                className="flex gap-2 p-1 rounded-xl w-fit"
-                style={{ backgroundColor: "var(--color-slate-800)" }}
-            >
+            <div className="flex flex-wrap gap-4 mb-8">
                 {["overview", "attendance", "salary"].map((tab) => (
                     <button
                         key={tab}
                         onClick={() => setActiveTab(tab as typeof activeTab)}
-                        className="px-6 py-3 rounded-lg text-sm font-semibold transition-all capitalize"
-                        style={{
-                            backgroundColor:
-                                activeTab === tab ? "var(--color-teal-500)" : "transparent",
-                            color:
-                                activeTab === tab
-                                    ? "var(--color-white)"
-                                    : "var(--color-slate-400)",
-                        }}
+                        className={`px-8 py-3 text-sm font-black uppercase tracking-wider border-2 transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,0.5)] hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,0.5)]
+                            ${activeTab === tab
+                                ? "bg-primary border-primary text-slate-950"
+                                : "bg-slate-900 border-slate-700 text-slate-400 hover:border-white hover:text-white"
+                            }`}
                     >
-                        {tab === "salary" ? "Salary Slips" : tab}
+                        {tab === "salary" ? "Payroll" : tab}
                     </button>
                 ))}
             </div>
 
             {/* Overview Tab */}
             {activeTab === "overview" && analytics && (
-                <div className="space-y-8">
+                <div className="space-y-8 animate-in fade-in duration-500">
                     {/* Stats Cards */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         <StatCard
                             title="Total Employees"
                             value={analytics.overview.totalEmployees.toString()}
-                            icon="👥"
+                            icon={<Users className="w-6 h-6" />}
                             color="teal"
                         />
                         <StatCard
                             title="Present Today"
                             value={analytics.overview.presentToday.toString()}
-                            subtitle={`${analytics.overview.attendanceRate}% attendance rate`}
-                            icon="✅"
+                            subtitle={`${analytics.overview.attendanceRate}% Rate`}
+                            icon={<TrendingUp className="w-6 h-6" />}
                             color="emerald"
                         />
                         <StatCard
                             title="Absent Today"
                             value={analytics.overview.absentToday.toString()}
-                            icon="❌"
+                            icon={<TrendingDown className="w-6 h-6" />}
                             color="red"
                         />
                         <StatCard
                             title="Pending Leaves"
                             value={analytics.leaves.pending.toString()}
-                            subtitle={`${analytics.leaves.total} total requests`}
-                            icon="📋"
+                            subtitle={`${analytics.leaves.total} Total`}
+                            icon={<AlertCircle className="w-6 h-6" />}
                             color="amber"
                         />
                     </div>
 
                     {/* Salary & Payroll Cards */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div
-                            className="rounded-2xl p-6"
-                            style={{
-                                backgroundColor: "var(--color-slate-900)",
-                                border: "1px solid var(--color-slate-800)",
-                            }}
-                        >
-                            <h3
-                                className="text-lg font-bold mb-4"
-                                style={{ color: "var(--color-white)" }}
-                            >
-                                💰 Salary Overview
+                        <div className="brutal-card bg-slate-900 p-6 border-2 border-slate-800 shadow-[8px_8px_0px_0px_var(--color-slate-800)]">
+                            <h3 className="text-xl font-black uppercase text-white mb-6 flex items-center gap-3">
+                                <DollarSign className="w-6 h-6 text-primary" />
+                                Salary Overview
                             </h3>
                             <div className="space-y-4">
-                                <div className="flex justify-between items-center">
-                                    <span style={{ color: "var(--color-slate-400)" }}>
-                                        Average Monthly
-                                    </span>
-                                    <span
-                                        className="font-bold"
-                                        style={{ color: "var(--color-teal-400)" }}
-                                    >
-                                        {formatCurrency(analytics.salary.averageMonthly)}
-                                    </span>
+                                <div className="flex justify-between items-center p-4 bg-slate-950 border border-slate-800">
+                                    <span className="text-slate-400 font-bold uppercase text-xs tracking-wider">Average Monthly</span>
+                                    <span className="font-black text-primary text-lg">{formatCurrency(analytics.salary.averageMonthly)}</span>
                                 </div>
-                                <div className="flex justify-between items-center">
-                                    <span style={{ color: "var(--color-slate-400)" }}>
-                                        Total Monthly Payroll
-                                    </span>
-                                    <span
-                                        className="font-bold"
-                                        style={{ color: "var(--color-emerald-400)" }}
-                                    >
-                                        {formatCurrency(analytics.salary.totalMonthly)}
-                                    </span>
+                                <div className="flex justify-between items-center p-4 bg-slate-950 border border-slate-800">
+                                    <span className="text-slate-400 font-bold uppercase text-xs tracking-wider">Total Payroll</span>
+                                    <span className="font-black text-emerald-500 text-lg">{formatCurrency(analytics.salary.totalMonthly)}</span>
                                 </div>
-                                <div className="flex justify-between items-center">
-                                    <span style={{ color: "var(--color-slate-400)" }}>
-                                        Salary Range
-                                    </span>
-                                    <span
-                                        className="font-bold"
-                                        style={{ color: "var(--color-slate-300)" }}
-                                    >
-                                        {formatCurrency(analytics.salary.minSalary)} -{" "}
-                                        {formatCurrency(analytics.salary.maxSalary)}
+                                <div className="flex justify-between items-center p-4 bg-slate-950 border border-slate-800">
+                                    <span className="text-slate-400 font-bold uppercase text-xs tracking-wider">Salary Range</span>
+                                    <span className="font-bold text-white text-sm">
+                                        {formatCurrency(analytics.salary.minSalary)} - {formatCurrency(analytics.salary.maxSalary)}
                                     </span>
                                 </div>
                             </div>
                         </div>
 
-                        <div
-                            className="rounded-2xl p-6"
-                            style={{
-                                backgroundColor: "var(--color-slate-900)",
-                                border: "1px solid var(--color-slate-800)",
-                            }}
-                        >
-                            <h3
-                                className="text-lg font-bold mb-4"
-                                style={{ color: "var(--color-white)" }}
-                            >
-                                📊 Leave Statistics
+                        <div className="brutal-card bg-slate-900 p-6 border-2 border-slate-800 shadow-[8px_8px_0px_0px_var(--color-slate-800)]">
+                            <h3 className="text-xl font-black uppercase text-white mb-6 flex items-center gap-3">
+                                <FileText className="w-6 h-6 text-amber-500" />
+                                Leave Statistics
                             </h3>
                             <div className="grid grid-cols-3 gap-4">
-                                <div className="text-center">
-                                    <div
-                                        className="text-2xl font-black"
-                                        style={{ color: "var(--color-amber-400)" }}
-                                    >
-                                        {analytics.leaves.pending}
-                                    </div>
-                                    <div
-                                        className="text-xs"
-                                        style={{ color: "var(--color-slate-500)" }}
-                                    >
-                                        Pending
-                                    </div>
+                                <div className="text-center p-4 bg-slate-950 border border-slate-800 group hover:border-amber-500 transition-colors">
+                                    <div className="text-4xl font-black text-amber-500 mb-2">{analytics.leaves.pending}</div>
+                                    <div className="text-[10px] font-black uppercase tracking-widest text-slate-500 group-hover:text-amber-500">Pending</div>
                                 </div>
-                                <div className="text-center">
-                                    <div
-                                        className="text-2xl font-black"
-                                        style={{ color: "var(--color-emerald-400)" }}
-                                    >
-                                        {analytics.leaves.approved}
-                                    </div>
-                                    <div
-                                        className="text-xs"
-                                        style={{ color: "var(--color-slate-500)" }}
-                                    >
-                                        Approved
-                                    </div>
+                                <div className="text-center p-4 bg-slate-950 border border-slate-800 group hover:border-emerald-500 transition-colors">
+                                    <div className="text-4xl font-black text-emerald-500 mb-2">{analytics.leaves.approved}</div>
+                                    <div className="text-[10px] font-black uppercase tracking-widest text-slate-500 group-hover:text-emerald-500">Approved</div>
                                 </div>
-                                <div className="text-center">
-                                    <div
-                                        className="text-2xl font-black"
-                                        style={{ color: "var(--color-red-400)" }}
-                                    >
-                                        {analytics.leaves.rejected}
-                                    </div>
-                                    <div
-                                        className="text-xs"
-                                        style={{ color: "var(--color-slate-500)" }}
-                                    >
-                                        Rejected
-                                    </div>
+                                <div className="text-center p-4 bg-slate-950 border border-slate-800 group hover:border-red-500 transition-colors">
+                                    <div className="text-4xl font-black text-red-500 mb-2">{analytics.leaves.rejected}</div>
+                                    <div className="text-[10px] font-black uppercase tracking-widest text-slate-500 group-hover:text-red-500">Rejected</div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     {/* Departments */}
-                    <div
-                        className="rounded-2xl p-6"
-                        style={{
-                            backgroundColor: "var(--color-slate-900)",
-                            border: "1px solid var(--color-slate-800)",
-                        }}
-                    >
-                        <h3
-                            className="text-lg font-bold mb-4"
-                            style={{ color: "var(--color-white)" }}
-                        >
-                            🏢 Employees by Department
+                    <div className="brutal-card bg-slate-900 p-6 border-2 border-slate-800 shadow-[8px_8px_0px_0px_var(--color-slate-800)]">
+                        <h3 className="text-xl font-black uppercase text-white mb-6 flex items-center gap-3">
+                            <Users className="w-6 h-6 text-blue-500" />
+                            Workforce Distribution
                         </h3>
                         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
                             {analytics.departments.map((dept, idx) => (
                                 <div
                                     key={idx}
-                                    className="p-4 rounded-xl text-center"
-                                    style={{
-                                        backgroundColor: "var(--color-slate-800)",
-                                    }}
+                                    className="p-4 bg-slate-950 border border-slate-800 text-center hover:border-blue-500 transition-colors group"
                                 >
-                                    <div
-                                        className="text-2xl font-black"
-                                        style={{ color: "var(--color-teal-400)" }}
-                                    >
-                                        {dept.count}
-                                    </div>
-                                    <div
-                                        className="text-xs mt-1 truncate"
-                                        style={{ color: "var(--color-slate-400)" }}
-                                    >
+                                    <div className="text-3xl font-black text-white group-hover:text-blue-500 mb-2">{dept.count}</div>
+                                    <div className="text-[10px] font-bold uppercase tracking-widest text-slate-500 truncate" title={dept.name}>
                                         {dept.name}
                                     </div>
                                 </div>
@@ -387,199 +293,66 @@ export default function AnalyticsPage() {
 
             {/* Attendance Report Tab */}
             {activeTab === "attendance" && (
-                <div className="space-y-6">
+                <div className="space-y-6 animate-in fade-in duration-500">
                     {/* Date Filter */}
-                    <div
-                        className="flex flex-wrap gap-4 p-4 rounded-xl"
-                        style={{ backgroundColor: "var(--color-slate-900)" }}
-                    >
+                    <div className="flex flex-wrap gap-4 p-6 bg-slate-900 border-2 border-slate-800 shadow-[4px_4px_0px_0px_var(--color-slate-800)] items-end">
                         <div>
-                            <label
-                                className="block text-xs mb-1"
-                                style={{ color: "var(--color-slate-400)" }}
-                            >
-                                Start Date
-                            </label>
+                            <label className="block text-xs font-black uppercase tracking-widest text-slate-500 mb-2">Start Date</label>
                             <input
                                 type="date"
                                 value={dateRange.startDate}
-                                onChange={(e) =>
-                                    setDateRange((prev) => ({ ...prev, startDate: e.target.value }))
-                                }
-                                className="px-4 py-2 rounded-lg text-sm"
-                                style={{
-                                    backgroundColor: "var(--color-slate-800)",
-                                    color: "var(--color-white)",
-                                    border: "1px solid var(--color-slate-700)",
-                                }}
+                                onChange={(e) => setDateRange((prev) => ({ ...prev, startDate: e.target.value }))}
+                                className="px-4 py-2 bg-slate-950 border-2 border-slate-700 text-white font-bold text-sm focus:border-primary focus:outline-none uppercase"
                             />
                         </div>
                         <div>
-                            <label
-                                className="block text-xs mb-1"
-                                style={{ color: "var(--color-slate-400)" }}
-                            >
-                                End Date
-                            </label>
+                            <label className="block text-xs font-black uppercase tracking-widest text-slate-500 mb-2">End Date</label>
                             <input
                                 type="date"
                                 value={dateRange.endDate}
-                                onChange={(e) =>
-                                    setDateRange((prev) => ({ ...prev, endDate: e.target.value }))
-                                }
-                                className="px-4 py-2 rounded-lg text-sm"
-                                style={{
-                                    backgroundColor: "var(--color-slate-800)",
-                                    color: "var(--color-white)",
-                                    border: "1px solid var(--color-slate-700)",
-                                }}
+                                onChange={(e) => setDateRange((prev) => ({ ...prev, endDate: e.target.value }))}
+                                className="px-4 py-2 bg-slate-950 border-2 border-slate-700 text-white font-bold text-sm focus:border-primary focus:outline-none uppercase"
                             />
                         </div>
-                        <div className="flex items-end">
-                            <button
-                                onClick={fetchAttendanceReport}
-                                className="px-6 py-2 rounded-lg text-sm font-semibold"
-                                style={{
-                                    backgroundColor: "var(--color-teal-500)",
-                                    color: "var(--color-white)",
-                                }}
-                            >
-                                Generate Report
-                            </button>
-                        </div>
+                        <button
+                            onClick={fetchAttendanceReport}
+                            className="px-6 py-2 bg-primary text-slate-950 font-black uppercase text-sm border-2 border-primary hover:bg-teal-400 transition-colors"
+                        >
+                            Generate Report
+                        </button>
                     </div>
 
                     {/* Attendance Table */}
-                    <div
-                        className="rounded-2xl overflow-hidden"
-                        style={{
-                            backgroundColor: "var(--color-slate-900)",
-                            border: "1px solid var(--color-slate-800)",
-                        }}
-                    >
+                    <div className="brutal-card p-0 overflow-hidden bg-slate-900 border-2 border-slate-800">
                         <div className="overflow-x-auto">
                             <table className="w-full">
                                 <thead>
-                                    <tr style={{ backgroundColor: "var(--color-slate-800)" }}>
-                                        <th
-                                            className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider"
-                                            style={{ color: "var(--color-slate-400)" }}
-                                        >
-                                            Employee
-                                        </th>
-                                        <th
-                                            className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider"
-                                            style={{ color: "var(--color-slate-400)" }}
-                                        >
-                                            Department
-                                        </th>
-                                        <th
-                                            className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider"
-                                            style={{ color: "var(--color-slate-400)" }}
-                                        >
-                                            Date
-                                        </th>
-                                        <th
-                                            className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider"
-                                            style={{ color: "var(--color-slate-400)" }}
-                                        >
-                                            Check In
-                                        </th>
-                                        <th
-                                            className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider"
-                                            style={{ color: "var(--color-slate-400)" }}
-                                        >
-                                            Check Out
-                                        </th>
-                                        <th
-                                            className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider"
-                                            style={{ color: "var(--color-slate-400)" }}
-                                        >
-                                            Hours
-                                        </th>
-                                        <th
-                                            className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider"
-                                            style={{ color: "var(--color-slate-400)" }}
-                                        >
-                                            Status
-                                        </th>
+                                    <tr className="border-b-2 border-slate-800 bg-slate-950/50">
+                                        {["Employee", "Department", "Date", "Check In", "Check Out", "Hours", "Status"].map((h) => (
+                                            <th key={h} className="px-6 py-4 text-left text-xs font-black uppercase tracking-widest text-slate-500">
+                                                {h}
+                                            </th>
+                                        ))}
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody className="divide-y-2 divide-slate-800">
                                     {attendanceReport.length > 0 ? (
-                                        attendanceReport.map((record, idx) => (
-                                            <tr
-                                                key={record.id}
-                                                style={{
-                                                    borderBottom: "1px solid var(--color-slate-800)",
-                                                    backgroundColor:
-                                                        idx % 2 === 0
-                                                            ? "transparent"
-                                                            : "var(--color-slate-800/30)",
-                                                }}
-                                            >
+                                        attendanceReport.map((record) => (
+                                            <tr key={record.id} className="hover:bg-slate-800 transition-colors">
                                                 <td className="px-6 py-4">
-                                                    <div
-                                                        className="font-medium"
-                                                        style={{ color: "var(--color-white)" }}
-                                                    >
-                                                        {record.employeeName}
-                                                    </div>
-                                                    <div
-                                                        className="text-xs"
-                                                        style={{ color: "var(--color-slate-500)" }}
-                                                    >
-                                                        {record.employeeId}
-                                                    </div>
+                                                    <div className="font-bold text-white uppercase">{record.employeeName}</div>
+                                                    <div className="text-[10px] font-mono text-slate-500">{record.employeeId}</div>
                                                 </td>
-                                                <td
-                                                    className="px-6 py-4 text-sm"
-                                                    style={{ color: "var(--color-slate-300)" }}
-                                                >
-                                                    {record.department || "—"}
-                                                </td>
-                                                <td
-                                                    className="px-6 py-4 text-sm"
-                                                    style={{ color: "var(--color-slate-300)" }}
-                                                >
-                                                    {formatDate(record.date)}
-                                                </td>
-                                                <td
-                                                    className="px-6 py-4 text-sm"
-                                                    style={{ color: "var(--color-emerald-400)" }}
-                                                >
-                                                    {formatTime(record.checkIn)}
-                                                </td>
-                                                <td
-                                                    className="px-6 py-4 text-sm"
-                                                    style={{ color: "var(--color-amber-400)" }}
-                                                >
-                                                    {record.checkOut ? formatTime(record.checkOut) : "—"}
-                                                </td>
-                                                <td
-                                                    className="px-6 py-4 text-sm font-medium"
-                                                    style={{ color: "var(--color-teal-400)" }}
-                                                >
-                                                    {record.workHours?.toFixed(1) || "—"}h
-                                                </td>
+                                                <td className="px-6 py-4 text-xs font-bold uppercase text-slate-400">{record.department || "—"}</td>
+                                                <td className="px-6 py-4 text-xs font-bold uppercase text-slate-400">{formatDate(record.date)}</td>
+                                                <td className="px-6 py-4 text-xs font-mono font-bold text-emerald-500">{formatTime(record.checkIn)}</td>
+                                                <td className="px-6 py-4 text-xs font-mono font-bold text-amber-500">{record.checkOut ? formatTime(record.checkOut) : "—"}</td>
+                                                <td className="px-6 py-4 text-xs font-mono font-bold text-white">{record.workHours?.toFixed(1) || "—"}H</td>
                                                 <td className="px-6 py-4">
-                                                    <span
-                                                        className="px-3 py-1 rounded-full text-xs font-semibold capitalize"
-                                                        style={{
-                                                            backgroundColor:
-                                                                record.status === "present"
-                                                                    ? "color-mix(in srgb, var(--color-emerald-500) 20%, transparent)"
-                                                                    : record.status === "late"
-                                                                        ? "color-mix(in srgb, var(--color-amber-500) 20%, transparent)"
-                                                                        : "color-mix(in srgb, var(--color-red-500) 20%, transparent)",
-                                                            color:
-                                                                record.status === "present"
-                                                                    ? "var(--color-emerald-400)"
-                                                                    : record.status === "late"
-                                                                        ? "var(--color-amber-400)"
-                                                                        : "var(--color-red-400)",
-                                                        }}
-                                                    >
+                                                    <span className={`px-2 py-1 text-[10px] font-black uppercase border tracking-widest
+                                                        ${record.status === 'present' ? 'bg-emerald-900/20 border-emerald-500 text-emerald-500' :
+                                                            record.status === 'late' ? 'bg-amber-900/20 border-amber-500 text-amber-500' :
+                                                                'bg-red-900/20 border-red-500 text-red-500'}`}>
                                                         {record.status}
                                                     </span>
                                                 </td>
@@ -587,12 +360,8 @@ export default function AnalyticsPage() {
                                         ))
                                     ) : (
                                         <tr>
-                                            <td
-                                                colSpan={7}
-                                                className="px-6 py-12 text-center"
-                                                style={{ color: "var(--color-slate-500)" }}
-                                            >
-                                                No attendance records found for the selected date range
+                                            <td colSpan={7} className="px-6 py-12 text-center text-slate-500 font-bold uppercase tracking-widest">
+                                                No records found for range
                                             </td>
                                         </tr>
                                     )}
@@ -605,135 +374,38 @@ export default function AnalyticsPage() {
 
             {/* Salary Slips Tab */}
             {activeTab === "salary" && (
-                <div className="space-y-6">
-                    {/* Salary Table */}
-                    <div
-                        className="rounded-2xl overflow-hidden"
-                        style={{
-                            backgroundColor: "var(--color-slate-900)",
-                            border: "1px solid var(--color-slate-800)",
-                        }}
-                    >
+                <div className="space-y-6 animate-in fade-in duration-500">
+                    <div className="brutal-card p-0 overflow-hidden bg-slate-900 border-2 border-slate-800">
                         <div className="overflow-x-auto">
                             <table className="w-full">
                                 <thead>
-                                    <tr style={{ backgroundColor: "var(--color-slate-800)" }}>
-                                        <th
-                                            className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider"
-                                            style={{ color: "var(--color-slate-400)" }}
-                                        >
-                                            Employee
-                                        </th>
-                                        <th
-                                            className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider"
-                                            style={{ color: "var(--color-slate-400)" }}
-                                        >
-                                            Department
-                                        </th>
-                                        <th
-                                            className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider"
-                                            style={{ color: "var(--color-slate-400)" }}
-                                        >
-                                            Basic
-                                        </th>
-                                        <th
-                                            className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider"
-                                            style={{ color: "var(--color-slate-400)" }}
-                                        >
-                                            HRA
-                                        </th>
-                                        <th
-                                            className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider"
-                                            style={{ color: "var(--color-slate-400)" }}
-                                        >
-                                            Gross
-                                        </th>
-                                        <th
-                                            className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider"
-                                            style={{ color: "var(--color-slate-400)" }}
-                                        >
-                                            Deductions
-                                        </th>
-                                        <th
-                                            className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider"
-                                            style={{ color: "var(--color-slate-400)" }}
-                                        >
-                                            Net Salary
-                                        </th>
+                                    <tr className="border-b-2 border-slate-800 bg-slate-950/50">
+                                        {["Employee", "Department", "Basic", "HRA", "Gross", "Deductions", "Net Salary"].map((h) => (
+                                            <th key={h} className={`px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-500 ${h === "Employee" || h === "Department" ? "text-left" : "text-right"}`}>
+                                                {h}
+                                            </th>
+                                        ))}
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody className="divide-y-2 divide-slate-800">
                                     {salaryReport.length > 0 ? (
-                                        salaryReport.map((slip, idx) => (
-                                            <tr
-                                                key={slip.id}
-                                                style={{
-                                                    borderBottom: "1px solid var(--color-slate-800)",
-                                                    backgroundColor:
-                                                        idx % 2 === 0
-                                                            ? "transparent"
-                                                            : "var(--color-slate-800/30)",
-                                                }}
-                                            >
+                                        salaryReport.map((slip) => (
+                                            <tr key={slip.id} className="hover:bg-slate-800 transition-colors">
                                                 <td className="px-6 py-4">
-                                                    <div
-                                                        className="font-medium"
-                                                        style={{ color: "var(--color-white)" }}
-                                                    >
-                                                        {slip.employeeName}
-                                                    </div>
-                                                    <div
-                                                        className="text-xs"
-                                                        style={{ color: "var(--color-slate-500)" }}
-                                                    >
-                                                        {slip.employeeId}
-                                                    </div>
+                                                    <div className="font-bold text-white uppercase">{slip.employeeName}</div>
+                                                    <div className="text-[10px] font-mono text-slate-500">{slip.employeeId}</div>
                                                 </td>
-                                                <td
-                                                    className="px-6 py-4 text-sm"
-                                                    style={{ color: "var(--color-slate-300)" }}
-                                                >
-                                                    {slip.department || "—"}
-                                                </td>
-                                                <td
-                                                    className="px-6 py-4 text-sm text-right"
-                                                    style={{ color: "var(--color-slate-300)" }}
-                                                >
-                                                    {formatCurrency(slip.basic)}
-                                                </td>
-                                                <td
-                                                    className="px-6 py-4 text-sm text-right"
-                                                    style={{ color: "var(--color-slate-300)" }}
-                                                >
-                                                    {formatCurrency(slip.hra)}
-                                                </td>
-                                                <td
-                                                    className="px-6 py-4 text-sm text-right font-medium"
-                                                    style={{ color: "var(--color-emerald-400)" }}
-                                                >
-                                                    {formatCurrency(slip.grossEarnings)}
-                                                </td>
-                                                <td
-                                                    className="px-6 py-4 text-sm text-right"
-                                                    style={{ color: "var(--color-red-400)" }}
-                                                >
-                                                    -{formatCurrency(slip.totalDeductions)}
-                                                </td>
-                                                <td
-                                                    className="px-6 py-4 text-sm text-right font-bold"
-                                                    style={{ color: "var(--color-teal-400)" }}
-                                                >
-                                                    {formatCurrency(slip.monthlyWage)}
-                                                </td>
+                                                <td className="px-6 py-4 text-xs font-bold uppercase text-slate-400">{slip.department || "—"}</td>
+                                                <td className="px-6 py-4 text-xs font-mono text-right text-slate-400">{formatCurrency(slip.basic)}</td>
+                                                <td className="px-6 py-4 text-xs font-mono text-right text-slate-400">{formatCurrency(slip.hra)}</td>
+                                                <td className="px-6 py-4 text-xs font-mono text-right font-bold text-emerald-500">{formatCurrency(slip.grossEarnings)}</td>
+                                                <td className="px-6 py-4 text-xs font-mono text-right text-red-500">-{formatCurrency(slip.totalDeductions)}</td>
+                                                <td className="px-6 py-4 text-sm font-mono text-right font-black text-white">{formatCurrency(slip.monthlyWage)}</td>
                                             </tr>
                                         ))
                                     ) : (
                                         <tr>
-                                            <td
-                                                colSpan={7}
-                                                className="px-6 py-12 text-center"
-                                                style={{ color: "var(--color-slate-500)" }}
-                                            >
+                                            <td colSpan={7} className="px-6 py-12 text-center text-slate-500 font-bold uppercase tracking-widest">
                                                 No salary records found
                                             </td>
                                         </tr>
@@ -758,72 +430,34 @@ function StatCard({
     title: string;
     value: string;
     subtitle?: string;
-    icon: string;
+    icon: React.ReactNode;
     color: "teal" | "emerald" | "red" | "amber";
 }) {
-    const colors = {
-        teal: {
-            bg: "color-mix(in srgb, var(--color-teal-500) 15%, transparent)",
-            border: "color-mix(in srgb, var(--color-teal-500) 30%, transparent)",
-            text: "var(--color-teal-400)",
-        },
-        emerald: {
-            bg: "color-mix(in srgb, var(--color-emerald-500) 15%, transparent)",
-            border: "color-mix(in srgb, var(--color-emerald-500) 30%, transparent)",
-            text: "var(--color-emerald-400)",
-        },
-        red: {
-            bg: "color-mix(in srgb, var(--color-red-500) 15%, transparent)",
-            border: "color-mix(in srgb, var(--color-red-500) 30%, transparent)",
-            text: "var(--color-red-400)",
-        },
-        amber: {
-            bg: "color-mix(in srgb, var(--color-amber-500) 15%, transparent)",
-            border: "color-mix(in srgb, var(--color-amber-500) 30%, transparent)",
-            text: "var(--color-amber-400)",
-        },
+    const config = {
+        teal: "border-teal-500 text-teal-500 bg-teal-500/10",
+        emerald: "border-emerald-500 text-emerald-500 bg-emerald-500/10",
+        red: "border-red-500 text-red-500 bg-red-500/10",
+        amber: "border-amber-500 text-amber-500 bg-amber-500/10",
     };
 
-    const c = colors[color];
-
     return (
-        <div
-            className="rounded-2xl p-6"
-            style={{
-                backgroundColor: "var(--color-slate-900)",
-                border: "1px solid var(--color-slate-800)",
-            }}
-        >
-            <div className="flex items-start justify-between">
-                <div>
-                    <p
-                        className="text-sm font-medium"
-                        style={{ color: "var(--color-slate-400)" }}
-                    >
-                        {title}
-                    </p>
-                    <p className="text-3xl font-black mt-2" style={{ color: c.text }}>
-                        {value}
-                    </p>
-                    {subtitle && (
-                        <p
-                            className="text-xs mt-1"
-                            style={{ color: "var(--color-slate-500)" }}
-                        >
-                            {subtitle}
-                        </p>
-                    )}
-                </div>
-                <div
-                    className="h-12 w-12 rounded-xl flex items-center justify-center text-xl"
-                    style={{
-                        backgroundColor: c.bg,
-                        border: `1px solid ${c.border}`,
-                    }}
-                >
+        <div className={`p-6 bg-slate-900 border-2 transition-all hover:-translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,0.5)] ${config[color].replace('text-', 'border-').split(' ')[0]} shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)]`}>
+            <div className="flex justify-between items-start mb-4">
+                <p className={`text-xs font-black uppercase tracking-widest ${config[color].split(' ')[1]}`}>
+                    {title}
+                </p>
+                <div className={`p-2 border-2 bg-slate-950 ${config[color]}`}>
                     {icon}
                 </div>
             </div>
+            <div className="text-4xl font-black text-white tracking-tighter mb-1">
+                {value}
+            </div>
+            {subtitle && (
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wide">
+                    {subtitle}
+                </p>
+            )}
         </div>
     );
 }

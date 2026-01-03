@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import EmployeeGrid from "@/components/EmployeeGrid";
 import AttendanceTray from "@/components/AttendanceTray";
 import { Button } from "@/components/ui/button";
+import { Download, Plane, Calendar, User, Phone, Mail, Building, Shield, Clock } from "lucide-react";
 
 export default async function DashboardPage() {
   const headersList = await headers();
@@ -33,9 +34,9 @@ export default async function DashboardPage() {
   });
 
   const statusColors: Record<string, string> = {
-    present: "text-green-600",
-    absent: "text-red-600",
-    "on-leave": "text-blue-600",
+    present: "text-emerald-500",
+    absent: "text-red-500",
+    "on-leave": "text-blue-500",
   };
 
   const statusText: Record<string, string> = {
@@ -45,97 +46,75 @@ export default async function DashboardPage() {
   };
 
   return (
-    <div
-      className="space-y-8 p-8"
-      style={{
-        background: `linear-gradient(to bottom right, var(--color-slate-950), var(--color-slate-900), var(--color-slate-950))`,
-      }}
-    >
-      <div className="flex justify-between items-center">
+    <div className="space-y-8 p-8 min-h-screen relative overflow-hidden font-mono bg-transparent z-10">
+
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b-2 border-slate-800 pb-8 bg-slate-950/80 backdrop-blur-sm">
         <div>
-          <h1
-            className="text-4xl font-bold tracking-tight mb-2"
-            style={{ color: "var(--color-white)" }}
-          >
+          <h1 className="text-4xl font-black uppercase tracking-tighter text-white drop-shadow-[4px_4px_0px_var(--color-slate-800)] flex items-center gap-2">
+            <span className="w-4 h-4 bg-primary inline-block" />
             Overview
           </h1>
-          <p style={{ color: "var(--color-slate-400)" }}>
-            Welcome to your dashboard
+          <p className="text-slate-400 font-bold uppercase tracking-widest text-sm mt-1 ml-6">
+            Employee Dashboard
           </p>
         </div>
         <Button
-          style={{
-            background: `linear-gradient(to right, var(--color-teal-600), var(--color-emerald-600))`,
-            color: "var(--color-white)",
-          }}
+          className="bg-slate-900 text-white border-2 border-slate-700 hover:border-primary hover:text-primary hover:-translate-y-1 hover:shadow-[4px_4px_0px_0px_var(--color-primary)] transition-all font-black uppercase tracking-wider"
         >
+          <Download className="w-4 h-4 mr-2" />
           Download Report
         </Button>
       </div>
 
       {/* Welcome Section */}
-      <div
-        className="rounded-lg"
-        style={{
-          backgroundColor: `color-mix(in srgb, var(--color-slate-700) 50%, transparent)`,
-          border: "1px solid var(--color-slate-700)",
-        }}
-      >
-        <div
-          className="p-6 border-b"
-          style={{ borderColor: "var(--color-slate-700)" }}
-        >
-          <h2
-            className="text-xl font-bold"
-            style={{ color: "var(--color-white)" }}
-          >
-            Welcome back, {userRole === "admin" ? "Administrator" : "Employee"}
-          </h2>
-        </div>
-        <div className="p-6 space-y-4">
-          <p style={{ color: "var(--color-slate-400)" }}>
-            You are currently logged in as{" "}
-            <span
-              className="font-mono px-2 py-0.5 rounded"
-              style={{
-                backgroundColor: `color-mix(in srgb, var(--color-teal-500) 10%, transparent)`,
-                color: "var(--color-teal-400)",
-              }}
-            >
-              {loginId}
-            </span>
-          </p>
+      <div className="brutal-card p-0 overflow-hidden relative group">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-bl-full -mr-16 -mt-16 transition-transform group-hover:scale-110" />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-            <div
-              className="p-4 rounded-lg flex items-center justify-between"
-              style={{
-                backgroundColor: `color-mix(in srgb, var(--color-teal-500) 10%, transparent)`,
-                border: "1px solid var(--color-teal-600)",
-              }}
-            >
-              <div>
-                <p
-                  className="font-bold"
-                  style={{ color: "var(--color-white)" }}
-                >
-                  Request Time Off
-                </p>
-                <p
-                  className="text-xs"
-                  style={{ color: "var(--color-slate-400)" }}
-                >
-                  Submit a new leave request.
-                </p>
+        <div className="p-8 border-b-2 border-slate-800 bg-slate-900/50">
+          <h2 className="text-3xl font-black uppercase tracking-tight text-white">
+            Welcome back, <span className="text-primary">{userRole === "admin" ? "Administrator" : "Employee"}</span>
+          </h2>
+          <p className="text-slate-400 mt-2 font-bold uppercase tracking-widest text-xs">
+            Logged in as <span className="bg-slate-800 text-white px-2 py-1 border border-slate-600 ml-2">{loginId}</span>
+          </p>
+        </div>
+
+        <div className="p-8 bg-slate-900 border-t-2 border-slate-800">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="p-6 bg-slate-950 border-2 border-slate-800 hover:border-primary transition-colors hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,0.5)] group/card">
+              <div className="flex justify-between items-start">
+                <div>
+                  <div className="bg-slate-900 p-2 w-fit border border-slate-700 mb-3 group-hover/card:border-primary transition-colors">
+                    <Plane className="w-6 h-6 text-primary" />
+                  </div>
+                  <h3 className="text-xl font-black uppercase text-white mb-1">Time Off</h3>
+                  <p className="text-xs text-slate-500 uppercase tracking-wider mb-4">Submit a new request</p>
+                </div>
               </div>
               <Button
                 size="sm"
-                style={{
-                  background: `linear-gradient(to right, var(--color-teal-600), var(--color-emerald-600))`,
-                  color: "var(--color-white)",
-                }}
+                className="w-full bg-slate-800 border-2 border-slate-700 text-white font-bold uppercase hover:bg-primary hover:text-slate-950 hover:border-primary transition-all"
               >
-                Submit
+                Submit Request
+              </Button>
+            </div>
+
+            <div className="p-6 bg-slate-950 border-2 border-slate-800 hover:border-emerald-500 transition-colors hover:shadow-[4px_4px_0px_0px_rgba(16,185,129,0.3)] group/card">
+              <div className="flex justify-between items-start">
+                <div>
+                  <div className="bg-slate-900 p-2 w-fit border border-slate-700 mb-3 group-hover/card:border-emerald-500 transition-colors">
+                    <Calendar className="w-6 h-6 text-emerald-500" />
+                  </div>
+                  <h3 className="text-xl font-black uppercase text-white mb-1">Schedule</h3>
+                  <p className="text-xs text-slate-500 uppercase tracking-wider mb-4">View upcoming shifts</p>
+                </div>
+              </div>
+              <Button
+                size="sm"
+                className="w-full bg-slate-800 border-2 border-slate-700 text-white font-bold uppercase hover:bg-emerald-500 hover:text-slate-950 hover:border-emerald-500 transition-all"
+              >
+                View Calendar
               </Button>
             </div>
           </div>
@@ -143,209 +122,115 @@ export default async function DashboardPage() {
       </div>
 
       {/* User Details Section */}
-      <div
-        className="rounded-2xl overflow-hidden border"
-        style={{
-          backgroundColor: `color-mix(in srgb, var(--color-slate-800) 50%, transparent)`,
-          border: "1px solid var(--color-slate-700)",
-        }}
-      >
-        <div className="px-8 pb-8">
-          <div className="flex flex-col md:flex-row items-start md:items-center gap-4 py-6 border-b border-slate-700 mb-6">
-            <div className="flex-1">
-              <h2
-                className="text-3xl font-bold mb-1"
-                style={{ color: "var(--color-white)" }}
-              >
+      <div className="brutal-card p-0 overflow-hidden">
+        <div className="px-8 py-6 border-b-2 border-slate-800 bg-slate-900">
+          <div className="flex items-center gap-4">
+            <div className="h-16 w-16 bg-slate-800 border-2 border-slate-600 flex items-center justify-center">
+              <User className="w-8 h-8 text-slate-400" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-black uppercase text-white tracking-wide">
                 {currentUser?.name || "Employee"}
               </h2>
-              <p
-                className="text-sm"
-                style={{ color: "var(--color-slate-400)" }}
-              >
-                {currentUser?.jobTitle || ""}
+              <p className="text-sm font-bold text-primary uppercase tracking-widest">
+                {currentUser?.jobTitle || "NO TITLE"}
               </p>
             </div>
           </div>
+        </div>
 
+        <div className="p-8 bg-slate-950">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div
-              className="p-6 rounded-xl"
-              style={{
-                backgroundColor: `color-mix(in srgb, var(--color-slate-700) 50%, transparent)`,
-                border: "1px solid var(--color-slate-700)",
-              }}
-            >
-              <p
-                className="text-xs font-bold uppercase tracking-widest mb-2"
-                style={{ color: "var(--color-slate-400)" }}
-              >
-                Employee ID
-              </p>
-              <p
-                className="text-lg font-bold font-mono"
-                style={{ color: "var(--color-teal-400)" }}
-              >
-                {currentUser?.employeeId || "Not assigned"}
+
+            {/* Detail Item */}
+            <div className="p-4 border-2 border-slate-800 bg-slate-900 hover:border-slate-600 transition-colors">
+              <div className="flex items-center gap-2 mb-2 text-slate-500">
+                <Shield className="w-4 h-4" />
+                <p className="text-[10px] font-black uppercase tracking-widest">Employee ID</p>
+              </div>
+              <p className="text-lg font-bold font-mono text-white">
+                {currentUser?.employeeId || "—"}
               </p>
             </div>
 
-            <div
-              className="p-6 rounded-xl"
-              style={{
-                backgroundColor: `color-mix(in srgb, var(--color-slate-700) 50%, transparent)`,
-                border: "1px solid var(--color-slate-700)",
-              }}
-            >
-              <p
-                className="text-xs font-bold uppercase tracking-widest mb-2"
-                style={{ color: "var(--color-slate-400)" }}
-              >
-                Email
-              </p>
-              <p
-                className="text-sm font-medium truncate"
-                style={{ color: "var(--color-slate-300)" }}
-              >
-                {currentUser?.email || "Not provided"}
+            <div className="p-4 border-2 border-slate-800 bg-slate-900 hover:border-slate-600 transition-colors">
+              <div className="flex items-center gap-2 mb-2 text-slate-500">
+                <Mail className="w-4 h-4" />
+                <p className="text-[10px] font-black uppercase tracking-widest">Email</p>
+              </div>
+              <p className="text-sm font-bold text-white truncate" title={currentUser?.email}>
+                {currentUser?.email || "—"}
               </p>
             </div>
 
-            <div
-              className="p-6 rounded-xl"
-              style={{
-                backgroundColor: `color-mix(in srgb, var(--color-slate-700) 50%, transparent)`,
-                border: "1px solid var(--color-slate-700)",
-              }}
-            >
-              <p
-                className="text-xs font-bold uppercase tracking-widest mb-2"
-                style={{ color: "var(--color-slate-400)" }}
-              >
-                Phone
-              </p>
-              <p
-                className="text-lg font-bold"
-                style={{ color: "var(--color-slate-300)" }}
-              >
-                {currentUser?.phone || "Not provided"}
+            <div className="p-4 border-2 border-slate-800 bg-slate-900 hover:border-slate-600 transition-colors">
+              <div className="flex items-center gap-2 mb-2 text-slate-500">
+                <Phone className="w-4 h-4" />
+                <p className="text-[10px] font-black uppercase tracking-widest">Phone</p>
+              </div>
+              <p className="text-lg font-bold text-white">
+                {currentUser?.phone || "—"}
               </p>
             </div>
 
-            <div
-              className="p-6 rounded-xl"
-              style={{
-                backgroundColor: `color-mix(in srgb, var(--color-slate-700) 50%, transparent)`,
-                border: "1px solid var(--color-slate-700)",
-              }}
-            >
-              <p
-                className="text-xs font-bold uppercase tracking-widest mb-2"
-                style={{ color: "var(--color-slate-400)" }}
-              >
-                Department
-              </p>
-              <p
-                className="text-lg font-bold"
-                style={{ color: "var(--color-slate-300)" }}
-              >
-                {currentUser?.department || "Not assigned"}
+            <div className="p-4 border-2 border-slate-800 bg-slate-900 hover:border-slate-600 transition-colors">
+              <div className="flex items-center gap-2 mb-2 text-slate-500">
+                <Building className="w-4 h-4" />
+                <p className="text-[10px] font-black uppercase tracking-widest">Deparment</p>
+              </div>
+              <p className="text-lg font-bold text-white uppercase">
+                {currentUser?.department || "—"}
               </p>
             </div>
 
-            <div
-              className="p-6 rounded-xl"
-              style={{
-                backgroundColor: `color-mix(in srgb, var(--color-slate-700) 50%, transparent)`,
-                border: "1px solid var(--color-slate-700)",
-              }}
-            >
-              <p
-                className="text-xs font-bold uppercase tracking-widest mb-2"
-                style={{ color: "var(--color-slate-400)" }}
-              >
-                Role
-              </p>
-              <p
-                className="text-lg font-bold capitalize"
-                style={{ color: "var(--color-emerald-400)" }}
-              >
-                {currentUser?.role?.name || "Not assigned"}
+            <div className="p-4 border-2 border-slate-800 bg-slate-900 hover:border-slate-600 transition-colors">
+              <div className="flex items-center gap-2 mb-2 text-slate-500">
+                <Shield className="w-4 h-4" />
+                <p className="text-[10px] font-black uppercase tracking-widest">Role</p>
+              </div>
+              <p className="text-lg font-bold text-white uppercase">
+                {currentUser?.role?.name || "—"}
               </p>
             </div>
 
-            <div
-              className="p-6 rounded-xl"
-              style={{
-                backgroundColor: `color-mix(in srgb, var(--color-slate-700) 50%, transparent)`,
-                border: "1px solid var(--color-slate-700)",
-              }}
-            >
-              <p
-                className="text-xs font-bold uppercase tracking-widest mb-2"
-                style={{ color: "var(--color-slate-400)" }}
-              >
-                Current Status
-              </p>
+            <div className="p-4 border-2 border-slate-800 bg-slate-900 hover:border-slate-600 transition-colors">
+              <div className="flex items-center gap-2 mb-2 text-slate-500">
+                <Clock className="w-4 h-4" />
+                <p className="text-[10px] font-black uppercase tracking-widest">Status</p>
+              </div>
               <div className="flex items-center gap-2">
                 <div
-                  className="w-2 h-2 rounded-full"
-                  style={{
-                    backgroundColor:
-                      currentUser?.status === "present"
-                        ? "#10b981"
-                        : currentUser?.status === "on-leave"
-                        ? "#3b82f6"
-                        : "#ef4444",
-                  }}
+                  className={`w-3 h-3 border border-black ${currentUser?.status === "present" ? "bg-emerald-500 animate-pulse" :
+                      currentUser?.status === "on-leave" ? "bg-blue-500" : "bg-red-500"
+                    }`}
                 />
-                <p
-                  className="text-lg font-bold capitalize"
-                  style={{
-                    color:
-                      currentUser?.status === "present"
-                        ? "#10b981"
-                        : currentUser?.status === "on-leave"
-                        ? "#3b82f6"
-                        : "#ef4444",
-                  }}
-                >
-                  {statusText[currentUser?.status || ""] ||
-                    currentUser?.status ||
-                    "Absent"}
+                <p className={`text-lg font-bold uppercase ${currentUser?.status === "present" ? "text-emerald-500" :
+                    currentUser?.status === "on-leave" ? "text-blue-500" : "text-red-500"
+                  }`}>
+                  {statusText[currentUser?.status || ""] || currentUser?.status || "ABSENT"}
                 </p>
               </div>
             </div>
 
-            <div
-              className="p-6 rounded-xl"
-              style={{
-                backgroundColor: `color-mix(in srgb, var(--color-slate-700) 50%, transparent)`,
-                border: "1px solid var(--color-slate-700)",
-              }}
-            >
-              <p
-                className="text-xs font-bold uppercase tracking-widest mb-2"
-                style={{ color: "var(--color-slate-400)" }}
-              >
-                Join Date
-              </p>
-              <p
-                className="text-lg font-bold"
-                style={{ color: "var(--color-slate-300)" }}
-              >
+            <div className="p-4 border-2 border-slate-800 bg-slate-900 hover:border-slate-600 transition-colors col-span-1 md:col-span-2">
+              <div className="flex items-center gap-2 mb-2 text-slate-500">
+                <Calendar className="w-4 h-4" />
+                <p className="text-[10px] font-black uppercase tracking-widest">Joined On</p>
+              </div>
+              <p className="text-lg font-bold text-white">
                 {currentUser?.dateJoined
                   ? new Date(currentUser.dateJoined).toLocaleDateString(
-                      "en-US",
-                      {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                      }
-                    )
-                  : "Not set"}
+                    "en-US",
+                    {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    }
+                  ).toUpperCase()
+                  : "—"}
               </p>
             </div>
+
           </div>
         </div>
       </div>

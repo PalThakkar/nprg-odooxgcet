@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiClient } from '@/lib/api';
-import { Clock, Calendar, User, LogOut, CheckCircle, XCircle } from 'lucide-react';
+import { Clock, Calendar, User, LogOut, CheckCircle, XCircle, ArrowRight } from 'lucide-react';
+import Link from 'next/link';
 
 interface AttendanceData {
   id?: string;
@@ -97,31 +98,39 @@ export default function AttendancePage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      <div className="flex items-center justify-center min-h-screen bg-slate-950">
+        <div className="text-white font-black uppercase tracking-widest text-xl">Loading System...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-950 font-mono relative overflow-hidden">
+      <div className="absolute inset-0 z-0 opacity-20 pointer-events-none"
+        style={{
+          backgroundImage: 'linear-gradient(rgba(148, 163, 184, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(148, 163, 184, 0.1) 1px, transparent 1px)',
+          backgroundSize: '40px 40px'
+        }}
+      />
+
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-slate-900 border-b-2 border-slate-800 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+          <div className="flex justify-between items-center h-20">
             <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-gray-900">Dayflow HRMS</h1>
+              <div className="w-8 h-8 bg-primary border-2 border-white mr-3 shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)]"></div>
+              <h1 className="text-2xl font-black text-white uppercase tracking-tighter">Dayflow HRMS</h1>
             </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600">
-                {user?.name} ({user?.role})
+            <div className="flex items-center space-x-6">
+              <span className="text-sm font-bold text-slate-400 uppercase tracking-widest">
+                {user?.name} <span className="text-primary">///</span> {user?.role}
               </span>
               <button
                 onClick={handleLogout}
-                className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
+                className="flex items-center space-x-2 text-slate-400 hover:text-red-500 font-bold uppercase transition-colors"
+                title="Logout"
               >
                 <LogOut className="h-5 w-5" />
-                <span>Logout</span>
               </button>
             </div>
           </div>
@@ -129,62 +138,60 @@ export default function AttendancePage() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Attendance Management</h2>
-          <p className="text-gray-600">Mark your attendance for today</p>
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
+        <div className="text-center mb-12">
+          <h2 className="text-4xl font-black text-white mb-2 uppercase tracking-tighter drop-shadow-[4px_4px_0px_var(--color-slate-800)]">Attendance Control</h2>
+          <p className="text-slate-400 font-bold uppercase tracking-widest text-sm">Synchronize your work status</p>
         </div>
 
         {/* Current Time Card */}
-        <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
+        <div className="brutal-card bg-slate-900 p-8 mb-12 border-2 border-slate-800 shadow-[8px_8px_0px_0px_var(--color-primary)]">
           <div className="text-center">
-            <div className="text-6xl font-bold text-blue-600 mb-2">
-              {formatTime(currentTime)}
+            <div className="inline-block px-6 py-2 border-2 border-primary bg-primary/10 mb-6">
+              <div className="text-6xl font-black text-primary tracking-tighter tabular-nums">
+                {formatTime(currentTime)}
+              </div>
             </div>
-            <div className="text-lg text-gray-600 mb-6">
+            <div className="text-lg font-bold text-slate-400 uppercase tracking-widest mb-8">
               {formatDate(currentTime)}
             </div>
 
-            <div className="flex items-center justify-center space-x-2 mb-6">
-              <User className="h-5 w-5 text-gray-500" />
-              <span className="text-gray-700">{user?.name}</span>
+            <div className="flex items-center justify-center space-x-3 mb-8 bg-slate-950 w-fit mx-auto px-4 py-2 border border-slate-800">
+              <User className="h-4 w-4 text-slate-500" />
+              <span className="text-white font-bold uppercase">{user?.name}</span>
               {user?.employeeId && (
-                <span className="text-gray-500">({user.employeeId})</span>
+                <span className="text-slate-600 font-mono text-sm">[{user.employeeId}]</span>
               )}
             </div>
 
             {/* Attendance Status */}
             {attendance && (
-              <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-gray-600">Check-in:</span>
-                    <span className="ml-2 font-medium">
+              <div className="mb-8 p-6 bg-slate-950 border-2 border-slate-800">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm">
+                  <div className="flex flex-col items-center sm:items-start">
+                    <span className="text-xs font-black uppercase text-slate-500 tracking-widest mb-1">Check-in</span>
+                    <span className={`text-xl font-bold font-mono ${attendance.checkIn ? 'text-emerald-500' : 'text-slate-600'}`}>
                       {attendance.checkIn ? new Date(attendance.checkIn).toLocaleTimeString('en-US', {
                         hour: '2-digit',
                         minute: '2-digit'
-                      }) : 'Not checked in'}
+                      }) : '--:--'}
                     </span>
                   </div>
-                  <div>
-                    <span className="text-gray-600">Check-out:</span>
-                    <span className="ml-2 font-medium">
+                  <div className="flex flex-col items-center sm:items-end">
+                    <span className="text-xs font-black uppercase text-slate-500 tracking-widest mb-1">Check-out</span>
+                    <span className={`text-xl font-bold font-mono ${attendance.checkOut ? 'text-blue-500' : 'text-slate-600'}`}>
                       {attendance.checkOut ? new Date(attendance.checkOut).toLocaleTimeString('en-US', {
                         hour: '2-digit',
                         minute: '2-digit'
-                      }) : 'Not checked out'}
+                      }) : '--:--'}
                     </span>
                   </div>
                   {attendance.workHours && (
-                    <div>
-                      <span className="text-gray-600">Work Hours:</span>
-                      <span className="ml-2 font-medium">{attendance.workHours.toFixed(1)}h</span>
-                    </div>
-                  )}
-                  {attendance.extraHours && attendance.extraHours > 0 && (
-                    <div>
-                      <span className="text-gray-600">Extra Hours:</span>
-                      <span className="ml-2 font-medium">{attendance.extraHours.toFixed(1)}h</span>
+                    <div className="col-span-full border-t border-slate-800 pt-4 mt-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs font-black uppercase text-slate-500 tracking-widest">Total Work Hours</span>
+                        <span className="text-xl font-bold font-mono text-white">{attendance.workHours.toFixed(2)} HRS</span>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -192,15 +199,17 @@ export default function AttendancePage() {
             )}
 
             {/* Action Buttons */}
-            <div className="flex justify-center space-x-4">
+            <div className="flex justify-center space-x-6">
               {!isCheckedIn && !isCheckedOut && (
                 <button
                   onClick={handleCheckIn}
                   disabled={actionLoading}
-                  className="flex items-center space-x-2 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="group relative px-8 py-4 bg-emerald-500 text-slate-950 font-black uppercase tracking-wider border-2 border-emerald-400 shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <CheckCircle className="h-5 w-5" />
-                  <span>{actionLoading ? 'Checking in...' : 'Check In'}</span>
+                  <div className="flex items-center space-x-3">
+                    <CheckCircle className="h-6 w-6" />
+                    <span>{actionLoading ? 'Processing...' : 'Check In Now'}</span>
+                  </div>
                 </button>
               )}
 
@@ -208,26 +217,28 @@ export default function AttendancePage() {
                 <button
                   onClick={handleCheckOut}
                   disabled={actionLoading}
-                  className="flex items-center space-x-2 bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="group relative px-8 py-4 bg-red-500 text-white font-black uppercase tracking-wider border-2 border-red-400 shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <XCircle className="h-5 w-5" />
-                  <span>{actionLoading ? 'Checking out...' : 'Check Out'}</span>
+                  <div className="flex items-center space-x-3">
+                    <XCircle className="h-6 w-6" />
+                    <span>{actionLoading ? 'Processing...' : 'Check Out Now'}</span>
+                  </div>
                 </button>
               )}
 
               {isCheckedOut && (
-                <div className="text-gray-500">
-                  <p className="font-medium">Attendance completed for today</p>
-                  <p className="text-sm">Come back tomorrow!</p>
+                <div className="text-slate-500 py-4 px-6 border-2 border-slate-800 bg-slate-900/50">
+                  <p className="font-black uppercase tracking-widest text-lg text-white">Day Complete</p>
+                  <p className="text-sm font-bold mt-1">See you tomorrow!</p>
                 </div>
               )}
             </div>
 
             {/* Message */}
             {message && (
-              <div className={`mt-4 p-3 rounded-lg ${message.includes('Successfully')
-                ? 'bg-green-100 text-green-700'
-                : 'bg-red-100 text-red-700'
+              <div className={`mt-6 p-4 border-2 font-bold uppercase tracking-wide text-sm ${message.includes('Successfully')
+                ? 'bg-emerald-900/20 border-emerald-500 text-emerald-500'
+                : 'bg-red-900/20 border-red-500 text-red-500'
                 }`}>
                 {message}
               </div>
@@ -237,33 +248,31 @@ export default function AttendancePage() {
 
         {/* Quick Links */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white p-6 rounded-lg shadow">
+          <Link href="/employees/attendance" className="group block bg-slate-900 p-6 border-2 border-slate-800 hover:border-blue-500 transition-all hover:-translate-y-1 hover:shadow-[4px_4px_0px_0px_var(--color-blue-500)]">
             <div className="flex items-center mb-4">
-              <Calendar className="h-6 w-6 text-blue-600 mr-2" />
-              <h3 className="text-lg font-medium text-gray-900">Attendance History</h3>
+              <div className="p-3 bg-slate-950 border border-slate-800 group-hover:border-blue-500 transition-colors">
+                <Calendar className="h-6 w-6 text-blue-500" />
+              </div>
+              <h3 className="ml-4 text-xl font-black text-white uppercase italic">History</h3>
             </div>
-            <p className="text-gray-600 mb-4">View your attendance records and summaries</p>
-            <a
-              href="/employees/attendance"
-              className="inline-flex items-center text-blue-600 hover:text-blue-700"
-            >
-              View History →
-            </a>
-          </div>
+            <p className="text-slate-500 text-sm font-bold uppercase tracking-wide mb-6 h-10">View your full attendance records and summaries</p>
+            <div className="flex items-center text-blue-500 font-bold uppercase text-sm group-hover:underline decoration-2 underline-offset-4">
+              View History <ArrowRight className="ml-2 w-4 h-4" />
+            </div>
+          </Link>
 
-          <div className="bg-white p-6 rounded-lg shadow">
+          <Link href="/employees/time-off" className="group block bg-slate-900 p-6 border-2 border-slate-800 hover:border-emerald-500 transition-all hover:-translate-y-1 hover:shadow-[4px_4px_0px_0px_var(--color-emerald-500)]">
             <div className="flex items-center mb-4">
-              <Clock className="h-6 w-6 text-green-600 mr-2" />
-              <h3 className="text-lg font-medium text-gray-900">Leave Management</h3>
+              <div className="p-3 bg-slate-950 border border-slate-800 group-hover:border-emerald-500 transition-colors">
+                <Clock className="h-6 w-6 text-emerald-500" />
+              </div>
+              <h3 className="ml-4 text-xl font-black text-white uppercase italic">Leaves</h3>
             </div>
-            <p className="text-gray-600 mb-4">Apply for leave or check your leave balance</p>
-            <a
-              href="/employees/time-off"
-              className="inline-flex items-center text-green-600 hover:text-green-700"
-            >
-              Manage Leave →
-            </a>
-          </div>
+            <p className="text-slate-500 text-sm font-bold uppercase tracking-wide mb-6 h-10">Apply for time off or check your leave balance</p>
+            <div className="flex items-center text-emerald-500 font-bold uppercase text-sm group-hover:underline decoration-2 underline-offset-4">
+              Manage Leave <ArrowRight className="ml-2 w-4 h-4" />
+            </div>
+          </Link>
         </div>
       </main>
     </div>

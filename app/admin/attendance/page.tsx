@@ -96,73 +96,82 @@ export default function AdminAttendancePage() {
     });
 
     return (
-        <div className="min-h-screen text-foreground">
-            <div className="home-bg"></div>
+        <div className="min-h-screen bg-transparent relative z-10 p-4 md:p-8 font-mono">
 
             {/* Header & Controls */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-8">
-                <div>
-                    <h1 className="text-3xl font-bold" style={{ color: "var(--foreground)" }}>Employee Attendance</h1>
-                    <p style={{ color: "var(--muted-foreground)" }}>Monitor daily check-ins and workforce status</p>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-10 border-b-2 border-slate-800 pb-8 bg-slate-950/80 backdrop-blur-sm">
+                <div className="border-l-8 border-primary pl-6 py-2">
+                    <h1 className="text-4xl font-black uppercase tracking-tighter text-white drop-shadow-[4px_4px_0px_var(--color-slate-800)]">
+                        Daily Attendance
+                    </h1>
+                    <p className="text-slate-400 font-bold uppercase tracking-widest text-sm mt-1">
+                        Monitor checks and statux
+                    </p>
                 </div>
-                <div className="flex items-center gap-3 card-gradient p-2 rounded-xl border border-border/50">
-                    <CalendarIcon className="w-5 h-5" style={{ color: "var(--muted-foreground)" }} />
+                <div className="flex items-center gap-3 bg-slate-900 border-2 border-slate-700 p-2 shadow-[4px_4px_0px_0px_var(--color-slate-800)] hover:border-primary transition-colors">
+                    <CalendarIcon className="w-5 h-5 text-primary ml-2" />
                     <input
                         type="date"
                         value={selectedDate}
                         onChange={(e) => setSelectedDate(e.target.value)}
-                        className="bg-transparent text-foreground border-none focus:ring-0 font-medium"
+                        className="bg-transparent text-white border-none focus:outline-none focus:ring-0 font-bold uppercase"
                     />
                 </div>
             </div>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 px-8">
-                <div className="p-6 rounded-3xl card-gradient border border-border/50">
-                    <p className="text-sm font-medium uppercase tracking-wider mb-2" style={{ color: "var(--muted-foreground)" }}>Total Employees</p>
-                    <p className="text-4xl font-black" style={{ color: "var(--foreground)" }}>{stats.total || 0}</p>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+                <div className="p-6 bg-slate-900 border-2 border-slate-700 shadow-[8px_8px_0px_0px_rgba(0,0,0,0.5)] transition-transform hover:-translate-y-1">
+                    <p className="text-sm font-black uppercase tracking-widest mb-2 text-slate-400">Total Workforce</p>
+                    <p className="text-4xl font-black text-white">{stats.total || 0}</p>
                 </div>
-                <div className="p-6 rounded-3xl bg-emerald-500/10 border border-emerald-500/20">
-                    <p className="text-sm font-medium text-emerald-400 uppercase tracking-wider mb-2">Present Today</p>
-                    <p className="text-4xl font-black text-emerald-500">{stats.present || 0}</p>
+
+                <div className="p-6 bg-emerald-900/10 border-2 border-emerald-500 shadow-[8px_8px_0px_0px_rgba(16,185,129,0.3)] transition-transform hover:-translate-y-1">
+                    <p className="text-sm font-black uppercase tracking-widest mb-2 text-emerald-500">Present</p>
+                    <p className="text-4xl font-black text-white">{stats.present || 0}</p>
                 </div>
-                <div className="p-6 rounded-3xl bg-rose-500/10 border border-rose-500/20">
-                    <p className="text-sm font-medium text-rose-400 uppercase tracking-wider mb-2">Absent</p>
-                    <p className="text-4xl font-black text-rose-500">{stats.absent || 0}</p>
+
+                <div className="p-6 bg-rose-900/10 border-2 border-rose-500 shadow-[8px_8px_0px_0px_rgba(244,63,94,0.3)] transition-transform hover:-translate-y-1">
+                    <p className="text-sm font-black uppercase tracking-widest mb-2 text-rose-500">Absent</p>
+                    <p className="text-4xl font-black text-white">{stats.absent || 0}</p>
                 </div>
-                <div className="p-6 rounded-3xl bg-amber-500/10 border border-amber-500/20">
-                    <p className="text-sm font-medium text-amber-400 uppercase tracking-wider mb-2">On Leave / Late</p>
-                    <p className="text-4xl font-black text-amber-500">{(stats.halfDay || 0) + (stats.onLeave || 0)}</p>
+
+                <div className="p-6 bg-amber-900/10 border-2 border-amber-500 shadow-[8px_8px_0px_0px_rgba(245,158,11,0.3)] transition-transform hover:-translate-y-1">
+                    <p className="text-sm font-black uppercase tracking-widest mb-2 text-amber-500">Leave / Late</p>
+                    <p className="text-4xl font-black text-white">{(stats.halfDay || 0) + (stats.onLeave || 0)}</p>
                 </div>
             </div>
 
             {/* Main Content */}
-            <div className="card-gradient rounded-3xl border border-border/50 overflow-hidden backdrop-blur-sm mx-8 mb-8 mt-8">
-
+            <div className="brutal-card p-0 overflow-hidden">
                 {/* Toolbar */}
-                <div className="p-6 border-b border-border flex flex-col md:flex-row gap-4 justify-between">
-                    <div className="relative flex-1 max-w-md">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: "var(--muted-foreground)" }} />
+                <div className="p-6 border-b-2 border-slate-800 bg-slate-900 flex flex-col md:flex-row gap-4 justify-between items-center">
+                    <div className="relative flex-1 max-w-md w-full">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                         <input
                             type="text"
-                            placeholder="Search by name, ID or email..."
+                            placeholder="SEARCH BY NAME, ID..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full bg-card border border-border rounded-xl py-2 pl-10 pr-4 text-foreground focus:outline-none focus:border-primary transition-colors"
+                            className="w-full bg-slate-950 border-2 border-slate-700 py-2 pl-10 pr-4 text-white placeholder-slate-600 focus:outline-none focus:border-primary font-bold uppercase text-sm"
                         />
                     </div>
 
-                    <div className="flex gap-2">
-                        <button 
+                    <div className="flex gap-4">
+                        <button
                             onClick={() => setShowFilters(!showFilters)}
-                            className="flex items-center gap-2 px-4 py-2 bg-card border border-border rounded-xl text-muted-foreground hover:text-foreground transition-colors"
+                            className={`flex items-center gap-2 px-4 py-2 border-2 font-bold uppercase text-xs transition-colors
+                                ${showFilters
+                                    ? 'bg-slate-800 text-white border-white'
+                                    : 'bg-slate-950 text-slate-400 border-slate-700 hover:border-primary hover:text-primary'
+                                }`}
                         >
                             <Filter className="w-4 h-4" />
                             <span>Filter</span>
                         </button>
-                        <button 
+                        <button
                             onClick={handleExport}
-                            className="flex items-center gap-2 px-4 py-2 bg-card border border-border rounded-xl text-muted-foreground hover:text-foreground transition-colors"
+                            className="flex items-center gap-2 px-4 py-2 bg-slate-950 border-2 border-slate-700 text-slate-400 font-bold uppercase text-xs hover:border-primary hover:text-primary transition-colors"
                         >
                             <Download className="w-4 h-4" />
                             <span>Export</span>
@@ -172,145 +181,147 @@ export default function AdminAttendancePage() {
 
                 {/* Filters */}
                 {showFilters && (
-                    <div className="p-6 border-b border-border bg-card/20">
-                        <div className="flex flex-wrap gap-4">
+                    <div className="p-6 border-b-2 border-slate-800 bg-slate-950">
+                        <div className="flex flex-wrap gap-4 items-end">
                             <div className="flex flex-col gap-2">
-                                <label className="text-sm font-medium" style={{ color: "var(--foreground)" }}>Status</label>
+                                <label className="text-xs font-black uppercase tracking-widest text-slate-500">Status</label>
                                 <select
                                     value={filters.status}
                                     onChange={(e) => handleFilterChange('status', e.target.value)}
-                                    className="bg-card border border-border rounded-lg px-3 py-2 text-foreground focus:outline-none focus:border-primary"
+                                    className="bg-slate-900 border-2 border-slate-700 px-3 py-2 text-white font-bold text-sm focus:outline-none focus:border-primary"
                                 >
-                                    <option value="">All Statuses</option>
-                                    <option value="checked-in">Checked In</option>
-                                    <option value="checked-out">Checked Out</option>
-                                    <option value="absent">Absent</option>
-                                    <option value="on-leave">On Leave</option>
-                                    <option value="half-day">Half Day</option>
+                                    <option value="">ALL STATUSES</option>
+                                    <option value="checked-in">CHECKED IN</option>
+                                    <option value="checked-out">CHECKED OUT</option>
+                                    <option value="absent">ABSENT</option>
+                                    <option value="on-leave">ON LEAVE</option>
+                                    <option value="half-day">HALF DAY</option>
                                 </select>
                             </div>
                             <div className="flex flex-col gap-2">
-                                <label className="text-sm font-medium" style={{ color: "var(--foreground)" }}>Department</label>
+                                <label className="text-xs font-black uppercase tracking-widest text-slate-500">Department</label>
                                 <input
                                     type="text"
-                                    placeholder="Enter department..."
+                                    placeholder="ENTER DEPT..."
                                     value={filters.department}
                                     onChange={(e) => handleFilterChange('department', e.target.value)}
-                                    className="bg-card border border-border rounded-lg px-3 py-2 text-foreground focus:outline-none focus:border-primary"
+                                    className="bg-slate-900 border-2 border-slate-700 px-3 py-2 text-white font-bold text-sm focus:outline-none focus:border-primary uppercase"
                                 />
                             </div>
-                            <div className="flex items-end">
-                                <button
-                                    onClick={() => setFilters({ status: "", department: "" })}
-                                    className="px-4 py-2 bg-muted text-muted-foreground rounded-lg hover:bg-muted/80 transition-colors"
-                                >
-                                    Clear Filters
-                                </button>
-                            </div>
+                            <button
+                                onClick={() => setFilters({ status: "", department: "" })}
+                                className="px-4 py-2 bg-slate-800 text-slate-400 font-bold uppercase text-xs border-2 border-slate-700 hover:border-white hover:text-white transition-colors"
+                            >
+                                Clear
+                            </button>
                         </div>
                     </div>
                 )}
 
                 {/* Table/Grid */}
-                {loading ? (
-                    <div className="flex flex-col items-center justify-center py-20">
-                        <Loader2 className="w-10 h-10 animate-spin" style={{ color: "var(--primary)" }} />
-                        <p style={{ color: "var(--muted-foreground)" }}>Loading attendance data...</p>
-                    </div>
-                ) : (
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse">
-                            <thead>
-                                <tr className="border-b border-border bg-card/50">
-                                    <th className="p-6 text-xs font-bold uppercase tracking-wider" style={{ color: "var(--muted-foreground)" }}>Employee</th>
-                                    <th className="p-6 text-xs font-bold uppercase tracking-wider" style={{ color: "var(--muted-foreground)" }}>Status</th>
-                                    <th className="p-6 text-xs font-bold uppercase tracking-wider" style={{ color: "var(--muted-foreground)" }}>Check In</th>
-                                    <th className="p-6 text-xs font-bold uppercase tracking-wider" style={{ color: "var(--muted-foreground)" }}>Check Out</th>
-                                    <th className="p-6 text-xs font-bold uppercase tracking-wider" style={{ color: "var(--muted-foreground)" }}>Work Hours</th>
-                                    <th className="p-6 text-xs font-bold uppercase tracking-wider" style={{ color: "var(--muted-foreground)" }}>Location</th>
+                <div className="overflow-x-auto bg-slate-900">
+                    <table className="w-full text-left border-collapse">
+                        <thead>
+                            <tr className="border-b-2 border-slate-800 bg-slate-950/50">
+                                <th className="p-6 text-xs font-black uppercase tracking-widest text-slate-500">Employee</th>
+                                <th className="p-6 text-xs font-black uppercase tracking-widest text-slate-500">Status</th>
+                                <th className="p-6 text-xs font-black uppercase tracking-widest text-slate-500">Check In</th>
+                                <th className="p-6 text-xs font-black uppercase tracking-widest text-slate-500">Check Out</th>
+                                <th className="p-6 text-xs font-black uppercase tracking-widest text-slate-500">Hours</th>
+                                <th className="p-6 text-xs font-black uppercase tracking-widest text-slate-500">Location</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y-2 divide-slate-800">
+                            {loading ? (
+                                <tr>
+                                    <td colSpan={6} className="p-16 text-center">
+                                        <div className="flex flex-col items-center gap-4">
+                                            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                                            <p className="font-bold uppercase tracking-widest text-slate-500">Fetching data...</p>
+                                        </div>
+                                    </td>
                                 </tr>
-                            </thead>
-                            <tbody className="divide-y divide-border">
-                                {filteredData.length === 0 ? (
-                                    <tr>
-                                        <td colSpan={6} className="p-8 text-center" style={{ color: "var(--muted-foreground)" }}>
-                                            No employees found matching your search.
-                                        </td>
-                                    </tr>
-                                ) : filteredData.map((item) => (
-                                    <tr key={item.user.id} className="hover:bg-card/20 transition-colors group">
+                            ) : filteredData.length === 0 ? (
+                                <tr>
+                                    <td colSpan={6} className="p-16 text-center font-bold uppercase tracking-widest text-slate-500">
+                                        No attendance records match your filter.
+                                    </td>
+                                </tr>
+                            ) : (
+                                filteredData.map((item) => (
+                                    <tr key={item.user.id} className="group hover:bg-slate-800 transition-colors">
                                         <td className="p-6">
                                             <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 rounded-full bg-card flex items-center justify-center overflow-hidden border border-border">
+                                                <div className="w-10 h-10 border-2 border-slate-700 bg-slate-800 flex items-center justify-center overflow-hidden">
                                                     {item.user.avatarUrl ? (
                                                         <img src={item.user.avatarUrl} alt={item.user.name} className="w-full h-full object-cover" />
                                                     ) : (
-                                                        <User className="w-5 h-5" style={{ color: "var(--muted-foreground)" }} />
+                                                        <User className="w-5 h-5 text-slate-500" />
                                                     )}
                                                 </div>
                                                 <div>
-                                                    <p className="font-bold group-hover:text-primary transition-colors" style={{ color: "var(--foreground)" }}>{item.user.name || 'Unknown'}</p>
-                                                    <p className="text-xs" style={{ color: "var(--muted-foreground)" }}>{item.user.jobTitle || 'No Title'} • {item.user.department || 'No Dept'}</p>
+                                                    <p className="font-bold text-white text-sm uppercase group-hover:text-primary transition-colors">{item.user.name || 'Unknown'}</p>
+                                                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{item.user.department || 'NO DEPT'} • {item.user.jobTitle || 'NO TITLE'}</p>
                                                 </div>
                                             </div>
                                         </td>
                                         <td className="p-6">
-                                            <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border
-                                        ${item.status === 'checked-in' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500' :
-                                                    item.status === 'checked-out' ? 'bg-blue-500/10 border-blue-500/20 text-blue-500' :
-                                                        item.status === 'absent' ? 'bg-rose-500/10 border-rose-500/20 text-rose-500' :
-                                                            'bg-amber-500/10 border-amber-500/20 text-amber-500'
+                                            <div className={`inline-flex items-center gap-2 px-3 py-1 border-2 text-[10px] font-black uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(0,0,0,0.3)]
+                                                ${item.status === 'checked-in' ? 'bg-emerald-900/20 border-emerald-500 text-emerald-500' :
+                                                    item.status === 'checked-out' ? 'bg-blue-900/20 border-blue-500 text-blue-500' :
+                                                        item.status === 'absent' ? 'bg-rose-900/20 border-rose-500 text-rose-500' :
+                                                            'bg-amber-900/20 border-amber-500 text-amber-500'
                                                 }`}>
-                                                <span className={`w-2 h-2 rounded-full ${item.status === 'checked-in' ? 'bg-emerald-500 animate-pulse' :
-                                                        item.status === 'checked-out' ? 'bg-blue-500' :
-                                                            item.status === 'absent' ? 'bg-rose-500' : 'bg-amber-500'
+                                                <span className={`w-2 h-2 ${item.status === 'checked-in' ? 'bg-emerald-500 animate-pulse' :
+                                                    item.status === 'checked-out' ? 'bg-blue-500' :
+                                                        item.status === 'absent' ? 'bg-rose-500' : 'bg-amber-500'
                                                     }`} />
                                                 {item.status.replace('-', ' ')}
                                             </div>
                                         </td>
                                         <td className="p-6">
-                                            <div className="flex items-center gap-2 font-medium" style={{ color: "var(--foreground)" }}>
+                                            <div className="flex items-center gap-2 font-mono font-bold text-slate-300">
                                                 {item.attendance?.checkIn ? (
                                                     <>
-                                                        <Clock className="w-4 h-4 text-emerald-500" />
+                                                        <Clock className="w-3 h-3 text-emerald-500" />
                                                         {new Date(item.attendance.checkIn).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                                     </>
                                                 ) : (
-                                                    <span style={{ color: "var(--muted-foreground)" }}>--:--</span>
+                                                    <span className="text-slate-600">--:--</span>
                                                 )}
                                             </div>
                                         </td>
                                         <td className="p-6">
-                                            <div className="flex items-center gap-2 font-medium" style={{ color: "var(--foreground)" }}>
+                                            <div className="flex items-center gap-2 font-mono font-bold text-slate-300">
                                                 {item.attendance?.checkOut ? (
                                                     <>
-                                                        <Clock className="w-4 h-4 text-blue-500" />
+                                                        <Clock className="w-3 h-3 text-blue-500" />
                                                         {new Date(item.attendance.checkOut).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                                     </>
                                                 ) : (
-                                                    <span style={{ color: "var(--muted-foreground)" }}>--:--</span>
+                                                    <span className="text-slate-600">--:--</span>
                                                 )}
                                             </div>
                                         </td>
                                         <td className="p-6">
                                             {item.attendance?.workHours ? (
-                                                <span className="font-bold" style={{ color: "var(--foreground)" }}>{item.attendance.workHours.toFixed(2)} hrs</span>
+                                                <span className="font-black text-white">{item.attendance.workHours.toFixed(2)} HRS</span>
                                             ) : (
-                                                <span style={{ color: "var(--muted-foreground)" }}>--</span>
+                                                <span className="text-slate-600 font-bold">--</span>
                                             )}
                                         </td>
                                         <td className="p-6">
-                                            <div className="flex items-center gap-2 text-xs" style={{ color: "var(--muted-foreground)" }}>
+                                            <div className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
                                                 <MapPin className="w-3 h-3" />
-                                                Office (HQ)
+                                                HQ
                                             </div>
                                         </td>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     );

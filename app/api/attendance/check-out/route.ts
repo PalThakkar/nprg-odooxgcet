@@ -4,6 +4,7 @@ import prisma from '@/lib/prisma';
 
 export async function POST(req: Request) {
   try {
+    console.log("Check-out API hit");
     const headerList = await headers();
     const userId = headerList.get('x-user-id');
 
@@ -11,74 +12,71 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Find today's attendance
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-
-    const existingAttendance = await prisma.attendance.findFirst({
+    // Find ALL active (open) sessions
+    const activeAttendances = await prisma.attendance.findMany({
         where: {
             userId,
-            date: {
-                gte: today,
-                lt: tomorrow
-            },
-            checkOut: null // Only if not already checked out
+            checkOut: null
         }
     });
 
-    if (!existingAttendance) {
-        return NextResponse.json({ error: 'No active check-in found for today' }, { status: 404 });
+    if (activeAttendances.length === 0) {
+        return NextResponse.json({ error: 'No active check-in found' }, { status: 400 });
     }
 
     const checkOutTime = new Date();
-    // Calculate work hours
-    const durationMs = checkOutTime.getTime() - new Date(existingAttendance.checkIn).getTime();
-    
-    // Enforce 1 hour minimum duration (3600000 ms)
-    if (durationMs < 3600000) {
-        return NextResponse.json({ 
-            error: 'Minimum work duration is 1 hour. Please try again later.' 
-        }, { status: 400 });
-    }
+    let lastProcessedAttendance = null;
 
-    const workHours = durationMs / (1000 * 60 * 60);
-
-    // Fetch company settings for Half-day logic
+    // Fetch user company settings once
     const user = await prisma.user.findUnique({
         where: { id: userId },
         include: { company: true }
     });
 
-    let status = 'present';
-    if (user?.company) {
-        const standardHours = user.company.workHours || 9; // Default fallback
-        if (workHours < (standardHours / 2)) {
-            status = 'half-day';
-        } else {
-             // If not half-day, keep existing status (which might be Late) or default to present
-             // We need to fetch the existing status first? 'existingAttendance' has it.
-             status = existingAttendance.status === 'late' ? 'late' : 'present';
-        }
-    } else {
-        // Fallback default logic
-        if (workHours < 4) {
-            status = 'half-day';
-        } else {
-             status = existingAttendance.status === 'late' ? 'late' : 'present';
-        }
-    }
+    // Process ALL open sessions
+    for (const attendanceRecord of activeAttendances) {
+        const durationMs = checkOutTime.getTime() - new Date(attendanceRecord.checkIn).getTime();
+        
+        // Validation: If it's the MOST RECENT session, enforce minimum duration?
+        // Actually, for stale sessions (yesterday), duration will be huge, which is fine.
+        // For today's session, if it's < 1 min, we might want to block?
+        // But if we block, we leave the stale ones open? 
+        // Better to just check them all out. If one is too short, we maybe just mark it but don't error?
+        // Or if the *shortest* one is too short, we error?
+        // Let's stick to the relaxed 1 minute rule for the *current* session. 
+        // We'll assume the "current" one is the one with the latest checkIn time.
+        
+        // But simply closing them all is robust. Let's just calculate logic for each.
 
-    // Update attendance record
-    const attendance = await prisma.attendance.update({
-        where: { id: existingAttendance.id },
-        data: {
-            checkOut: checkOutTime,
-            workHours: parseFloat(workHours.toFixed(2)),
-            status: status
+        const workHours = durationMs / (1000 * 60 * 60);
+        
+        let status = 'present';
+        if (user?.company) {
+            const standardHours = user.company.workHours || 9;
+            if (workHours < (standardHours / 2)) {
+                status = 'half-day';
+            } else {
+                 status = attendanceRecord.status === 'late' ? 'late' : 'present';
+            }
+        } else {
+            if (workHours < 4) {
+                status = 'half-day';
+            } else {
+                 status = attendanceRecord.status === 'late' ? 'late' : 'present';
+            }
         }
-    });
+
+        // Update record
+        const updated = await prisma.attendance.update({
+            where: { id: attendanceRecord.id },
+            data: {
+                checkOut: checkOutTime,
+                workHours: parseFloat(workHours.toFixed(2)),
+                status: status
+            }
+        });
+        lastProcessedAttendance = updated;
+    }
 
     // Update user status
     await prisma.user.update({
@@ -86,7 +84,7 @@ export async function POST(req: Request) {
         data: { status: 'absent' }
     });
 
-    return NextResponse.json(attendance);
+    return NextResponse.json(lastProcessedAttendance);
 
   } catch (error: any) {
     console.error('Check-out error:', error);
