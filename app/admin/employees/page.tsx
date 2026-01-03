@@ -35,19 +35,24 @@ export default function EmployeeList() {
     null
   );
 
-  const fetchEmployees = async () => {
-    try {
-      const res = await fetch("/api/admin/employees");
-      const data = await res.json();
-      if (data.employees) {
-        setEmployees(data.employees);
-      }
-    } catch (error) {
-      console.error("Failed to fetch employees:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    const fetchEmployees = async () => {
+        try {
+            const res = await fetch('/api/admin/employees');
+            console.log('Response status:', res.status);
+            const data = await res.json();
+            console.log('Fetch Employees Data:', data);
+            if (!res.ok) {
+                console.error('API Error:', data.error || data);
+            }
+            if (data.employees) {
+                setEmployees(data.employees);
+            }
+        } catch (error) {
+            console.error('Failed to fetch employees:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
   useEffect(() => {
     fetchEmployees();

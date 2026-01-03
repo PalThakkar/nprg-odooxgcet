@@ -12,7 +12,7 @@ export async function POST(req: Request) {
     const companyId = headersList.get('x-user-company-id');
     const userRole = headersList.get('x-user-role');
 
-    if (!adminId || userRole !== 'admin' || !companyId) {
+    if (!adminId || userRole?.toLowerCase() !== 'admin' || !companyId) {
       return NextResponse.json({ error: 'Unauthorized: Admin access required' }, { status: 403 });
     }
 
@@ -140,11 +140,10 @@ export async function GET() {
     const companyId = headersList.get('x-user-company-id');
     const userRole = headersList.get('x-user-role');
     const loginIdHeader = headersList.get('x-user-login-id');
+    console.log('Headers from Request:', { adminId, companyId, userRole, loginIdHeader });
 
-    console.log('Headers:', { adminId, companyId, userRole, loginIdHeader });
-
-    if (!(adminId || loginIdHeader) || userRole !== 'admin' || !companyId) {
-      console.log('Unauthorized access attempt');
+    if (!(adminId || loginIdHeader) || userRole?.toLowerCase() !== 'admin' || !companyId) {
+      console.log('Unauthorized access attempt - Missing required headers or not admin');
       return NextResponse.json({
         error: 'Unauthorized',
         debug: { adminId, companyId, userRole, loginIdHeader }
@@ -152,11 +151,15 @@ export async function GET() {
     }
 
     console.log('Fetching employees for company:', companyId);
-    
+
+    // Debug: Check if any users exist at all
+    const totalUsersCount = await prisma.user.count();
+    console.log('Total users in DB:', totalUsersCount);
+
     const employees = await prisma.user.findMany({
       where: {
         companyId: companyId,
-        role: { name: 'user' }
+        // role: { name: 'user' } // Commending out to see all users
       },
       include: {
         role: true,
@@ -165,11 +168,24 @@ export async function GET() {
       },
       orderBy: { createdAt: 'desc' }
     });
-    console.log('Employees fetched:', employees.length);
+    console.log(`Employees found for company ${companyId}:`, employees.length);
 
-    return NextResponse.json({ employees });
+    return NextResponse.json({
+      employees,
+      debug: {
+        companyId,
+        adminId,
+        userRole,
+        totalUsersCount,
+        returnedCount: employees.length
+      }
+    });
   } catch (error: any) {
     console.error('GET Employees Error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({
+      error: error.message,
+      stack: error.stack
+    }, { status: 500 });
   }
 }
+

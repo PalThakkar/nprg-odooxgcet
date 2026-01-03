@@ -36,7 +36,9 @@ export default function LoginPage() {
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
 
-      if (data.user.role === "admin") {
+      const userRole = data.user.role?.toLowerCase();
+
+      if (userRole === 'admin') {
         router.push("/admin/employees");
       } else {
         router.push("/employees");

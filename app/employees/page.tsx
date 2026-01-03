@@ -15,7 +15,7 @@ export default async function DashboardPage() {
         include: { role: true }
     });
 
-    const userRole = currentUser?.role?.name || headersList.get("x-user-role");
+    const userRole = (currentUser?.role?.name || headersList.get("x-user-role") || '').toLowerCase();
     const loginId = currentUser?.loginId || headersList.get("x-user-login-id");
     const companyId = currentUser?.companyId || headerCompanyId;
 

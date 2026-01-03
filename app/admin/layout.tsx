@@ -1,8 +1,6 @@
-"use client";
-
+import { headers } from "next/headers";
 import Link from "next/link";
-import { useAuth } from "@/contexts/AuthContext";
-import { useRouter } from "next/navigation";
+import LogoutButton from "@/components/LogoutButton";
 
 export default function DashboardLayout({
   children,
@@ -19,8 +17,12 @@ export default function DashboardLayout({
 
   const navItems = [
     { label: "Dashboard", href: "/admin/employees" },
-    { label: "Employees", href: "/admin/employees" },
-    { label: "Leave Approval", href: "/admin/leaves" },
+    ...(userRole?.toLowerCase() === "admin"
+      ? [
+        { label: "Employees", href: "/admin/employees" },
+        { label: "Leave Approval", href: "/admin/leaves" },
+      ]
+      : []),
   ];
 
   return (
@@ -59,7 +61,7 @@ export default function DashboardLayout({
         <nav className="flex-1 space-y-1">
           {navItems.map((item) => (
             <Link
-              key={item.href}
+              key={item.label}
               href={item.href}
               className="flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors group"
               style={{ color: "var(--color-slate-300)" }}
@@ -119,13 +121,7 @@ export default function DashboardLayout({
             </span>
           </div>
           <div className="ml-auto flex items-center gap-4">
-            <button
-              onClick={handleLogout}
-              className="text-sm font-medium transition-colors hover:opacity-80"
-              style={{ color: "var(--color-slate-400)" }}
-            >
-              Logout
-            </button>
+            <LogoutButton />
           </div>
         </header>
         <div className="p-0">{children}</div>
