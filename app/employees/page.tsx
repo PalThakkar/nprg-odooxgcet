@@ -201,11 +201,11 @@ export default async function DashboardPage() {
               <div className="flex items-center gap-2">
                 <div
                   className={`w-3 h-3 border border-black ${currentUser?.status === "present" ? "bg-emerald-500 animate-pulse" :
-                      currentUser?.status === "on-leave" ? "bg-blue-500" : "bg-red-500"
+                    currentUser?.status === "on-leave" ? "bg-blue-500" : "bg-red-500"
                     }`}
                 />
                 <p className={`text-lg font-bold uppercase ${currentUser?.status === "present" ? "text-emerald-500" :
-                    currentUser?.status === "on-leave" ? "text-blue-500" : "text-red-500"
+                  currentUser?.status === "on-leave" ? "text-blue-500" : "text-red-500"
                   }`}>
                   {statusText[currentUser?.status || ""] || currentUser?.status || "ABSENT"}
                 </p>
