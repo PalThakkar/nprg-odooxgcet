@@ -7,28 +7,52 @@ datasource db {
 }
 
 model User {
-  id            String         @id @default(uuid())
-  loginId       String?        @unique
-  email         String         @unique
-  password      String
-  name          String?
-  phone         String?
-  companyId     String?
-  roleId        String
-  isFirstLogin  Boolean        @default(true)
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  avatarUrl     String?
-  status        String         @default("absent")
+  id           String   @id @default(uuid())
+  loginId      String?  @unique
+  email        String   @unique
+  password     String
+  name         String?
+  phone        String?
+  address      String?
+  employeeId   String?  @unique
+  companyId    String?
+  roleId       String
+  role         Role     @relation(fields: [roleId], references: [id])
+  isFirstLogin Boolean  @default(true)
+  status       String   @default("present") // present, absent, on-leave
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
   data          AppData[]
   attendances   Attendance[]
   leaveRequests LeaveRequest[]
+  leaveBalance  LeaveBalance?
   salaryInfo    SalaryInfo?
+  payrolls      Payroll[]
   company       Company?       @relation(fields: [companyId], references: [id])
-  role          Role           @relation(fields: [roleId], references: [id])
   privateInfo   PrivateInfo?
+  notifications Notification[]
 
   @@map("users")
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  type      String   @default("ANNOUNCEMENT") // ANNOUNCEMENT, SYSTEM, ALERT
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@map("notifications")
 }
 
 model Attendance {
@@ -80,12 +104,14 @@ model LeaveRequest {
   id           String      @id @default(uuid())
   userId       String
   companyId    String
-  type         String
-  startDate    DateTime
-  endDate      DateTime
+  leaveType    String // paid, sick, unpaid
+  startDate    DateTime    @db.Date
+  endDate      DateTime    @db.Date
   status       LeaveStatus @default(PENDING)
   reason       String?
   adminComment String?
+  approvedBy   String?
+  approvedAt   DateTime?
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
   company      Company     @relation(fields: [companyId], references: [id])
@@ -155,8 +181,32 @@ model AppData {
   @@map("app_data")
 }
 
-enum LeaveStatus {
-  PENDING
-  APPROVED
-  REJECTED
+model LeaveBalance {
+  id             String   @id @default(uuid())
+  userId         String   @unique
+  paidDaysLeft   Int      @default(24)
+  sickDaysLeft   Int      @default(7)
+  unpaidDaysLeft Int      @default(0)
+  year           Int      @default(2025)
+  updatedAt      DateTime @updatedAt
+  user           User     @relation(fields: [userId], references: [id])
+
+  @@map("leave_balances")
+}
+
+model Payroll {
+  id          String    @id @default(uuid())
+  userId      String
+  basicSalary Float
+  allowances  Float     @default(0)
+  deductions  Float     @default(0)
+  netSalary   Float
+  payPeriod   String // e.g., "2025-01"
+  status      String    @default("draft") // draft, processed, paid
+  processedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  user        User      @relation(fields: [userId], references: [id])
+
+  @@map("payrolls")
 }
