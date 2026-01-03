@@ -42,13 +42,13 @@ export default function DashboardLayout({
               color: "var(--color-primary)",
             }}
           >
-            O
+            {user?.company?.substring(0, 1).toUpperCase() || "D"}
           </div>
           <span
             className="text-xl font-black tracking-tighter truncate uppercase"
             style={{ color: "var(--color-white)" }}
           >
-            Odoo India
+            {user?.company || "Dayflow"}
           </span>
         </div>
 

@@ -1,7 +1,7 @@
 import { headers } from "next/headers";
 import prisma from "@/lib/prisma";
-import EmployeeGrid from "@/components/EmployeeGrid";
-import AttendanceTray from "@/components/AttendanceTray";
+// import EmployeeGrid from "@/components/EmployeeGrid";
+// import AttendanceTray from "@/components/AttendanceTray";
 import { Button } from "@/components/ui/button";
 import { Download, Plane, Calendar, User, Phone, Mail, Building, Shield, Clock } from "lucide-react";
 
@@ -139,7 +139,7 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        <div className="p-8 bg-slate-950">
+        <div className="p-8 bg-slate-900">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 
             {/* Detail Item */}
