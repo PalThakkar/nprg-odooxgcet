@@ -70,8 +70,57 @@ export async function GET(req: Request) {
         todayStatus = 'checked-out';
     }
 
+    // Fetch approved leaves for this month
+    const leaves = await prisma.leaveRequest.findMany({
+        where: {
+            userId,
+            status: 'APPROVED',
+            OR: [
+                {
+                    startDate: { gte: startDate, lte: endDate }
+                },
+                {
+                    endDate: { gte: startDate, lte: endDate }
+                }
+            ]
+        }
+    });
+
+    // Calculate stats
+    // 1. Get total days in month passed so far (or total in month if historical)
+    const now = new Date();
+    const isCurrentMonth = now.getMonth() === month && now.getFullYear() === year;
+    const daysInMonth = isCurrentMonth ? now.getDate() : new Date(year, month + 1, 0).getDate();
+    
+    // Simple working day calculation (excluding Sundays) - simplified for now
+    let workingDaysPassed = 0;
+    for (let i = 1; i <= daysInMonth; i++) {
+        const d = new Date(year, month, i);
+        if (d.getDay() !== 0) { // Exclude Sundays
+            workingDaysPassed++;
+        }
+    }
+
+    const presentDays = attendances.filter(a => a.status === 'present').length;
+    const halfDays = attendances.filter(a => a.status === 'half-day' || a.status === 'late').length;
+    const leaveDays = leaves.length; // Simplified: assumes 1 request = 1 day or similar. Ideally should sum duration.
+
+    // Absent = Working Days Passed - (Present + Half Days + Leaves)
+    // Ensure doesn't go below 0
+    const totalAttended = presentDays + halfDays + leaveDays;
+    const absentDays = Math.max(0, workingDaysPassed - totalAttended);
+
+    const stats = {
+        present: presentDays,
+        halfDay: halfDays,
+        leaves: leaveDays,
+        absent: absentDays
+    };
+
     return NextResponse.json({ 
         attendances,
+        leaves,
+        stats,
         todayStatus,
         checkInTime: todayAttendance?.checkIn,
         checkOutTime: todayAttendance?.checkOut,

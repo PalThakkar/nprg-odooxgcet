@@ -15,6 +15,7 @@ interface AttendanceRecord {
 export default function AttendancePage() {
   const [loading, setLoading] = useState(true);
   const [attendances, setAttendances] = useState<AttendanceRecord[]>([]);
+  const [stats, setStats] = useState({ present: 0, halfDay: 0, absent: 0, leaves: 0 });
   const [todayStatus, setTodayStatus] = useState<'not-checked-in' | 'checked-in' | 'checked-out'>('not-checked-in');
   const [checkInTime, setCheckInTime] = useState<string | null>(null);
   const [checkOutTime, setCheckOutTime] = useState<string | null>(null);
@@ -54,6 +55,7 @@ export default function AttendancePage() {
 
       if (res.ok) {
         setAttendances(data.attendances || []);
+        if (data.stats) setStats(data.stats);
         setTodayStatus(data.todayStatus);
         setCheckInTime(data.checkInTime);
         setCheckOutTime(data.checkOutTime);
@@ -174,16 +176,28 @@ export default function AttendancePage() {
                   {todayStatus === 'checked-in' && (
                     <button
                       onClick={handleCheckOut}
-                      disabled={processing}
-                      className="flex-1 h-16 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 transition-all transform active:scale-95"
-                      style={{
-                        background: `linear-gradient(to right, var(--color-rose-500), var(--color-red-500))`,
-                        color: "white",
-                        boxShadow: "0 4px 20px rgba(244, 63, 94, 0.3)"
-                      }}
+                      disabled={processing || (!!checkInTime && new Date().getTime() - new Date(checkInTime).getTime() < 3600000)}
+                      className={`flex-1 h-16 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 transition-all transform active:scale-95
+                        ${(checkInTime && new Date().getTime() - new Date(checkInTime).getTime() < 3600000)
+                          ? 'bg-slate-700/50 text-slate-500 cursor-not-allowed border border-slate-700'
+                          : 'bg-gradient-to-r from-rose-500 to-red-500 text-white shadow-lg shadow-rose-500/30'
+                        }`}
                     >
-                      {processing ? <Loader2 className="animate-spin" /> : <Square fill="currentColor" />}
-                      Check Out
+                      {processing ? (
+                        <Loader2 className="animate-spin" />
+                      ) : (checkInTime && new Date().getTime() - new Date(checkInTime).getTime() < 3600000) ? (
+                        <>
+                          <Clock className="w-5 h-5" />
+                          <span>
+                            Wait {Math.ceil((3600000 - (new Date().getTime() - new Date(checkInTime).getTime())) / 60000)}m
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <Square fill="currentColor" />
+                          <span>Check Out</span>
+                        </>
+                      )}
                     </button>
                   )}
 
@@ -269,22 +283,22 @@ export default function AttendancePage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-4 rounded-2xl bg-emerald-500/5 border border-emerald-500/10">
                   <p className="text-2xl font-black text-emerald-500">
-                    {attendances.filter(a => a.status === 'present').length}
+                    {stats.present}
                   </p>
                   <p className="text-xs font-semibold text-emerald-400/60 uppercase tracking-wider mt-1">Present</p>
                 </div>
                 <div className="p-4 rounded-2xl bg-amber-500/5 border border-amber-500/10">
                   <p className="text-2xl font-black text-amber-500">
-                    {attendances.filter(a => a.status === 'half-day').length}
+                    {stats.halfDay}
                   </p>
                   <p className="text-xs font-semibold text-amber-400/60 uppercase tracking-wider mt-1">Late/Half</p>
                 </div>
                 <div className="p-4 rounded-2xl bg-rose-500/5 border border-rose-500/10">
-                  <p className="text-2xl font-black text-rose-500">0</p>
+                  <p className="text-2xl font-black text-rose-500">{stats.absent}</p>
                   <p className="text-xs font-semibold text-rose-400/60 uppercase tracking-wider mt-1">Absent</p>
                 </div>
                 <div className="p-4 rounded-2xl bg-blue-500/5 border border-blue-500/10">
-                  <p className="text-2xl font-black text-blue-500">0</p>
+                  <p className="text-2xl font-black text-blue-500">{stats.leaves}</p>
                   <p className="text-xs font-semibold text-blue-400/60 uppercase tracking-wider mt-1">Leaves</p>
                 </div>
               </div>

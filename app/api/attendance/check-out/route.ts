@@ -35,6 +35,14 @@ export async function POST(req: Request) {
     const checkOutTime = new Date();
     // Calculate work hours
     const durationMs = checkOutTime.getTime() - new Date(existingAttendance.checkIn).getTime();
+    
+    // Enforce 1 hour minimum duration (3600000 ms)
+    if (durationMs < 3600000) {
+        return NextResponse.json({ 
+            error: 'Minimum work duration is 1 hour. Please try again later.' 
+        }, { status: 400 });
+    }
+
     const workHours = durationMs / (1000 * 60 * 60);
 
     // Fetch company settings for Half-day logic
