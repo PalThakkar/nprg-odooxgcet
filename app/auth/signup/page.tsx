@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Eye, EyeOff, Lock, User, Mail, Phone, Building2, Upload } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function SignUpPage() {
     const [formData, setFormData] = useState({
@@ -19,6 +20,7 @@ export default function SignUpPage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const router = useRouter();
+    const { register } = useAuth();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -35,21 +37,18 @@ export default function SignUpPage() {
         setError("");
 
         try {
-            const res = await fetch("/api/auth/register", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formData),
+            await register({
+                companyName: formData.companyName,
+                companyInitials: formData.companyInitials,
+                name: formData.name,
+                email: formData.email,
+                phone: formData.phone,
+                password: formData.password,
             });
-
-            const data = await res.json();
-
-            if (!res.ok) {
-                throw new Error(data.error || "Registration failed");
-            }
-
+            
             // Success - normally we'd show a success modal with their Login ID
-            alert(`Account Created! Your initial Login ID is: ${data.user.loginId}`);
-            router.push("/auth/login");
+            alert(`Account Created! Your initial Login ID is: ${formData.companyInitials.toUpperCase()}-001-${new Date().getFullYear()}`);
+            router.push("/dashboard");
         } catch (err: any) {
             setError(err.message);
         } finally {

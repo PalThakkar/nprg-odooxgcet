@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,35 +7,47 @@ datasource db {
 }
 
 model User {
-  id           String   @id @default(uuid())
-  loginId      String?  @unique
-  email        String   @unique
+  id           String       @id @default(uuid())
+  loginId      String?      @unique
+  email        String       @unique
   password     String
   name         String?
   phone        String?
-  avatarUrl    String?
-  status       String   @default("absent") // present, absent, on-leave
+  address      String?
+  employeeId   String?      @unique
   companyId    String?
-  company      Company? @relation(fields: [companyId], references: [id])
   roleId       String
-  role         Role     @relation(fields: [roleId], references: [id])
-  isFirstLogin Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  data        AppData[]
-  attendances Attendance[]
+  isFirstLogin Boolean      @default(true)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  avatarUrl    String?
+  status       String       @default("absent")
+  jobTitle     String?
+  department   String?
+  dateJoined   DateTime?
+  salary       Float?
+  data         AppData[]
+  attendances  Attendance[]
+  leaveRequests LeaveRequest[]
+  leaveBalance LeaveBalance?
+  payroll      Payroll[]
+  company      Company?     @relation(fields: [companyId], references: [id])
+  role         Role         @relation(fields: [roleId], references: [id])
 
   @@map("users")
 }
 
 model Attendance {
-  id        String    @id @default(uuid())
-  userId    String
-  user      User      @relation(fields: [userId], references: [id])
-  checkIn   DateTime  @default(now())
-  checkOut  DateTime?
-  date      DateTime  @default(now()) @db.Date
+  id          String    @id @default(uuid())
+  userId      String
+  checkIn     DateTime  @default(now())
+  checkOut    DateTime?
+  date        DateTime  @default(now()) @db.Date
+  workHours   Float?    
+  extraHours  Float?    @default(0)
+  status      String    @default("present") // present, absent, half-day, leave
+  remarks     String?
+  user        User      @relation(fields: [userId], references: [id])
 
   @@map("attendances")
 }
@@ -46,12 +55,12 @@ model Attendance {
 model Company {
   id        String            @id @default(uuid())
   name      String
-  initials  String // For Login ID generation: "OI" -> Odoo India
+  initials  String
   logoUrl   String?
-  users     User[]
-  counters  EmployeeCounter[]
   createdAt DateTime          @default(now())
   updatedAt DateTime          @updatedAt
+  counters  EmployeeCounter[]
+  users     User[]
 
   @@map("companies")
 }
@@ -59,9 +68,9 @@ model Company {
 model EmployeeCounter {
   id        String  @id @default(uuid())
   companyId String
-  company   Company @relation(fields: [companyId], references: [id])
   year      Int
   count     Int     @default(0)
+  company   Company @relation(fields: [companyId], references: [id])
 
   @@unique([companyId, year])
   @@map("employee_counters")
@@ -69,7 +78,7 @@ model EmployeeCounter {
 
 model Role {
   id          String  @id @default(uuid())
-  name        String  @unique // e.g. "admin", "user", "support"
+  name        String  @unique
   description String?
   users       User[]
 
@@ -80,8 +89,56 @@ model AppData {
   id        String   @id @default(uuid())
   content   String
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
 
   @@map("app_data")
+}
+
+model LeaveRequest {
+  id          String    @id @default(uuid())
+  userId      String
+  startDate   DateTime  @db.Date
+  endDate     DateTime  @db.Date
+  leaveType   String    // paid, sick, unpaid
+  reason      String?
+  status      String    @default("pending") // pending, approved, rejected
+  approvedBy  String?
+  approvedAt  DateTime?
+  remarks     String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  user        User      @relation(fields: [userId], references: [id])
+
+  @@map("leave_requests")
+}
+
+model LeaveBalance {
+  id               String @id @default(uuid())
+  userId           String @unique
+  paidDaysLeft     Int    @default(24)
+  sickDaysLeft     Int    @default(7)
+  unpaidDaysLeft   Int    @default(0)
+  year             Int    @default(2025)
+  updatedAt        DateTime @updatedAt
+  user             User   @relation(fields: [userId], references: [id])
+
+  @@map("leave_balances")
+}
+
+model Payroll {
+  id            String   @id @default(uuid())
+  userId        String
+  basicSalary   Float
+  allowances    Float    @default(0)
+  deductions    Float    @default(0)
+  netSalary     Float
+  payPeriod     String   // e.g., "2025-01"
+  status        String   @default("draft") // draft, processed, paid
+  processedAt   DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  user          User     @relation(fields: [userId], references: [id])
+
+  @@map("payrolls")
 }

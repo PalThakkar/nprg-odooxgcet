@@ -8,22 +8,34 @@ import { Button } from '@/components/ui/button';
 interface Employee {
     id: string;
     name: string | null;
-    loginId: string | null;
+    email: string;
+    employeeId: string | null;
+    jobTitle: string | null;
+    department: string | null;
     status: string;
-    avatarUrl: string | null;
+    phone: string | null;
+    dateJoined: Date | null;
+    salary: number | null;
     role: {
+        id: string;
         name: string;
-    };
+    } | null;
 }
 
-export default function EmployeeGrid({ initialEmployees }: { initialEmployees: Employee[] }) {
+interface EmployeeGridProps {
+    employees: Employee[];
+}
+
+export function EmployeeGrid({ employees }: EmployeeGridProps) {
     const [searchQuery, setSearchQuery] = useState('');
 
-    const filteredEmployees = initialEmployees.filter((employee: Employee) => {
-        const name = (employee.name || employee.loginId || '').toLowerCase();
+    const filteredEmployees = employees.filter((employee: Employee) => {
+        const name = (employee.name || employee.employeeId || '').toLowerCase();
+        const email = employee.email.toLowerCase();
+        const department = (employee.department || '').toLowerCase();
         const role = (employee.role?.name || '').toLowerCase();
         const query = searchQuery.toLowerCase();
-        return name.includes(query) || role.includes(query);
+        return name.includes(query) || email.includes(query) || department.includes(query) || role.includes(query);
     });
 
     return (
@@ -48,7 +60,7 @@ export default function EmployeeGrid({ initialEmployees }: { initialEmployees: E
                         <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                         <input
                             type="text"
-                            placeholder="Filter by name, role or department..."
+                            placeholder="Filter by name, email, role or department..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="w-full bg-transparent border-none py-2.5 pl-10 pr-4 focus:ring-0 text-sm placeholder:text-gray-400"
@@ -61,7 +73,7 @@ export default function EmployeeGrid({ initialEmployees }: { initialEmployees: E
                 {filteredEmployees.map((employee: Employee) => (
                     <EmployeeCard
                         key={employee.id}
-                        name={employee.name || employee.loginId || 'Unknown'}
+                        name={employee.name || employee.employeeId || 'Unknown'}
                         role={employee.role?.name || 'Employee'}
                         avatarUrl={employee.avatarUrl || undefined}
                         status={employee.status as any}
@@ -87,4 +99,9 @@ export default function EmployeeGrid({ initialEmployees }: { initialEmployees: E
             </div>
         </div>
     );
+}
+
+// Keep the default export for backward compatibility
+export default function EmployeeGridWrapper({ initialEmployees }: { initialEmployees: any[] }) {
+    return <EmployeeGrid employees={initialEmployees} />;
 }
