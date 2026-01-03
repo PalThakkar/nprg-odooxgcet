@@ -12,12 +12,15 @@ export default function DashboardLayout({
   const { user } = useAuth();
 
   const navItems = [
+    { label: "Home", href: "/" },
     { label: "Dashboard", href: "/admin/employees" },
     ...(user?.role?.toLowerCase() === "admin"
       ? [
         { label: "Employees", href: "/admin/employees" },
         { label: "Leave Approval", href: "/admin/leaves" },
         { label: "Attendance", href: "/admin/attendance" },
+        { label: "Analytics", href: "/admin/analytics" },
+        { label: "Notifications", href: "/admin/notifications" },
         { label: "Settings", href: "/admin/settings" },
       ]
       : []),
@@ -97,7 +100,7 @@ export default function DashboardLayout({
                 className="text-[10px] truncate"
                 style={{ color: "var(--color-slate-500)" }}
               >
-                {user?.employeeId || "USER-001"}
+                {user?.role?.toLowerCase() === "admin" ? "Administrator" : user?.id || "USER-001"}
               </p>
             </div>
           </div>
