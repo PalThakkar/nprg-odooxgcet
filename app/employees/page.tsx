@@ -13,7 +13,7 @@ async function getEmployees() {
         loginId: true,
         status: true,
         phone: true,
-        avatarUrl: true,
+
         createdAt: true,
         role: {
           select: {
@@ -127,7 +127,7 @@ export default async function EmployeesPage() {
               Add Employee
             </a>
           </div>
-          
+
           <EmployeeGrid initialEmployees={employees} />
         </div>
       </main>

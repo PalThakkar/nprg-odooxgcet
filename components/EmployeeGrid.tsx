@@ -11,12 +11,12 @@ interface Employee {
     name: string | null;
     loginId: string | null;
     status: string;
-    avatarUrl: string | null;
+    avatarUrl?: string | null;
     email?: string | null;
     phone?: string | null;
-    role: {
+    role?: {
         name: string;
-    };
+    } | null;
 }
 
 export default function EmployeeGrid({
