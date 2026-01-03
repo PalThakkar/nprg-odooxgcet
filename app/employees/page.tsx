@@ -163,6 +163,27 @@ export default async function DashboardPage() {
                 className="text-xs font-bold uppercase tracking-widest mb-2"
                 style={{ color: "var(--color-slate-400)" }}
               >
+                Full Name
+              </p>
+              <p
+                className="text-lg font-bold"
+                style={{ color: "var(--color-teal-400)" }}
+              >
+                {currentUser?.name || "Not provided"}
+              </p>
+            </div>
+
+            <div
+              className="p-6 rounded-xl"
+              style={{
+                backgroundColor: `color-mix(in srgb, var(--color-slate-700) 50%, transparent)`,
+                border: "1px solid var(--color-slate-700)",
+              }}
+            >
+              <p
+                className="text-xs font-bold uppercase tracking-widest mb-2"
+                style={{ color: "var(--color-slate-400)" }}
+              >
                 Employee ID
               </p>
               <p
@@ -212,6 +233,27 @@ export default async function DashboardPage() {
                 style={{ color: "var(--color-slate-300)" }}
               >
                 {currentUser?.phone || "Not provided"}
+              </p>
+            </div>
+
+            <div
+              className="p-6 rounded-xl"
+              style={{
+                backgroundColor: `color-mix(in srgb, var(--color-slate-700) 50%, transparent)`,
+                border: "1px solid var(--color-slate-700)",
+              }}
+            >
+              <p
+                className="text-xs font-bold uppercase tracking-widest mb-2"
+                style={{ color: "var(--color-slate-400)" }}
+              >
+                Job Title
+              </p>
+              <p
+                className="text-lg font-bold"
+                style={{ color: "var(--color-slate-300)" }}
+              >
+                {currentUser?.jobTitle || "Not assigned"}
               </p>
             </div>
 
