@@ -58,7 +58,11 @@ export default function SignUpPage() {
 
       // Success - normally we'd show a success modal with their Login ID
       alert(`Account Created! Your initial Login ID is: ${data.user.loginId}`);
-      router.push("/employees/auth/login");
+      if (data.user.role === "admin") {
+        router.push("/admin/employees");
+      } else {
+        router.push("/employees");
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -357,7 +361,7 @@ export default function SignUpPage() {
           <p className="text-sm" style={{ color: "var(--color-slate-400)" }}>
             Already have an account?{" "}
             <Link
-              href="/employees/auth/login"
+              href="/auth/login"
               className="font-semibold underline-offset-4 hover:underline"
               style={{ color: "var(--color-teal-400)" }}
             >

@@ -1,18 +1,19 @@
-import { headers } from "next/headers";
+"use client";
+
 import Link from "next/link";
+import { useAuth } from "@/contexts/AuthContext";
 import LogoutButton from "@/components/LogoutButton";
 
-export default async function DashboardLayout({
+export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const headerList = await headers();
-  const userRole = headerList.get("x-user-role");
-  const loginId = headerList.get("x-user-login-id");
+  const { user } = useAuth();
 
   const navItems = [
     { label: "Dashboard", href: "/admin/employees" },
+<<<<<<< HEAD
     ...(userRole?.toLowerCase() === "admin"
       ? [
         { label: "Employees", href: "/admin/employees" },
@@ -21,6 +22,10 @@ export default async function DashboardLayout({
         { label: "Settings", href: "/admin/settings" },
       ]
       : []),
+=======
+    { label: "Employees", href: "/admin/employees" },
+    { label: "Leave Approval", href: "/admin/leaves" },
+>>>>>>> 3e215d45055be12feaa5ead47654800aef86bc4c
   ];
 
   return (
@@ -84,20 +89,20 @@ export default async function DashboardLayout({
                 color: "var(--color-teal-500)",
               }}
             >
-              {userRole?.substring(0, 1)}
+              {user?.role?.substring(0, 1).toUpperCase() || "A"}
             </div>
             <div className="overflow-hidden">
               <p
                 className="text-xs font-bold truncate"
                 style={{ color: "var(--color-slate-300)" }}
               >
-                Admin User
+                {user?.name || "Admin User"}
               </p>
               <p
                 className="text-[10px] truncate"
                 style={{ color: "var(--color-slate-500)" }}
               >
-                {loginId || "USER-001"}
+                {user?.employeeId || "USER-001"}
               </p>
             </div>
           </div>

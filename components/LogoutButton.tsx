@@ -8,6 +8,7 @@ export default function LogoutButton() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
 
+<<<<<<< HEAD
     const handleLogout = async () => {
         setLoading(true);
         try {
@@ -26,6 +27,11 @@ export default function LogoutButton() {
         } finally {
             // Don't set loading back to false if successful to prevent flicker before redirect
         }
+=======
+    const handleLogout = () => {
+        logout();
+        router.push("/");
+>>>>>>> 3e215d45055be12feaa5ead47654800aef86bc4c
     };
 
     return (
