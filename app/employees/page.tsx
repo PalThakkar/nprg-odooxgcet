@@ -1,136 +1,171 @@
-import { headers } from 'next/headers';
-import prisma from '@/lib/prisma';
-import EmployeeGrid from '@/components/EmployeeGrid';
-import { EmployeeStats } from '@/components/EmployeeStats';
+import { headers } from "next/headers";
+import prisma from "@/lib/prisma";
+import EmployeeGrid from "@/components/EmployeeGrid";
+import AttendanceTray from "@/components/AttendanceTray";
+import { Button } from "@/components/ui/button";
 
-async function getEmployees() {
-  try {
-    const employees = await prisma.user.findMany({
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        loginId: true,
-        status: true,
-        phone: true,
-        avatarUrl: true,
-        createdAt: true,
-        role: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-      },
-      orderBy: {
-        name: 'asc',
-      },
+export default async function DashboardPage() {
+    const headersList = await headers();
+    const userId = headersList.get("x-user-id");
+    const headerCompanyId = headersList.get("x-user-company-id");
+
+    // Fetch current user for status and company info
+    const currentUser = await prisma.user.findUnique({
+        where: { id: userId || '' },
+        include: { role: true }
     });
 
-    return employees;
-  } catch (error) {
-    console.error('Failed to fetch employees:', error);
-    return [];
-  }
-}
+    const userRole = currentUser?.role?.name || headersList.get("x-user-role");
+    const loginId = currentUser?.loginId || headersList.get("x-user-login-id");
+    const companyId = currentUser?.companyId || headerCompanyId;
 
-async function getEmployeeStats() {
-  try {
-    const [totalEmployees, activeEmployees] = await Promise.all([
-      prisma.user.count(),
-      prisma.user.count({ where: { status: 'active' } }),
-    ]);
+    // Fetch employees from the same company
+    const employees = await prisma.user.findMany({
+        where: {
+            companyId: companyId || ''
+        },
+        include: {
+            role: true,
+        },
+        orderBy: {
+            name: 'asc'
+        }
+    });
 
-    return {
-      totalEmployees,
-      activeEmployees,
-      totalDepartments: 5, // Mock data for now
-      avgSalary: 75000, // Mock data for now
+    const statusColors: Record<string, string> = {
+        present: 'text-green-600',
+        absent: 'text-red-600',
+        'on-leave': 'text-blue-600'
     };
-  } catch (error) {
-    console.error('Failed to fetch employee stats:', error);
-    return {
-      totalEmployees: 0,
-      activeEmployees: 0,
-      totalDepartments: 0,
-      avgSalary: 0,
+
+    const statusText: Record<string, string> = {
+        present: 'Active',
+        absent: 'Absent',
+        'on-leave': 'On Leave'
     };
-  }
-}
 
-export default async function EmployeesPage() {
-  const headersList = await headers();
-  const userId = headersList.get('x-user-id');
-  const userRole = headersList.get('x-user-role');
-
-  // Authentication check
-  if (!userId || (userRole !== 'admin' && userRole !== 'hr')) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-red-600 mb-4">Access Denied</h2>
-          <p className="text-gray-600">You don't have permission to access this page.</p>
-          <a href="/dashboard" className="mt-4 inline-block text-blue-600 hover:text-blue-700">
-            Back to Dashboard
-          </a>
-        </div>
-      </div>
-    );
-  }
-
-  // Server-side data fetching
-  const [employees, stats] = await Promise.all([
-    getEmployees(),
-    getEmployeeStats(),
-  ]);
-
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-gray-900">Dayflow HRMS</h1>
+        <div
+            className="space-y-8 p-8"
+            style={{
+                background: `linear-gradient(to bottom right, var(--color-slate-950), var(--color-slate-900), var(--color-slate-950))`,
+            }}
+        >
+            <div className="flex justify-between items-center">
+                <div>
+                    <h1
+                        className="text-4xl font-bold tracking-tight mb-2"
+                        style={{ color: "var(--color-white)" }}
+                    >
+                        Overview
+                    </h1>
+                    <p style={{ color: "var(--color-slate-400)" }}>
+                        Welcome to your dashboard
+                    </p>
+                </div>
+                <Button
+                    style={{
+                        background: `linear-gradient(to right, var(--color-teal-600), var(--color-emerald-600))`,
+                        color: "var(--color-white)",
+                    }}
+                >
+                    Download Report
+                </Button>
             </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600">
-                {userRole} Dashboard
-              </span>
-              <a href="/dashboard" className="text-blue-600 hover:text-blue-700">
-                Dashboard
-              </a>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div
+                    className="p-6 rounded-lg"
+                    style={{
+                        backgroundColor: `color-mix(in srgb, var(--color-slate-700) 50%, transparent)`,
+                        border: "1px solid var(--color-slate-700)",
+                    }}
+                >
+                    <p
+                        className="text-xs font-bold uppercase tracking-widest"
+                        style={{ color: "var(--color-slate-400)" }}
+                    >
+                        Profile Status
+                    </p>
+                    <p
+                        className={`text-2xl font-bold mt-2 capitalize ${statusColors[currentUser?.status || 'absent'] || 'text-gray-600'}`}
+                    >
+                        {statusText[currentUser?.status || ''] || currentUser?.status || 'Absent'}
+                    </p>
+                </div>
             </div>
-          </div>
-        </div>
-      </header>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Page Header */}
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-900">Employee Management</h2>
-          <p className="text-gray-600 mt-2">Manage your organization's employees</p>
-        </div>
-
-        {/* Stats Cards */}
-        <EmployeeStats stats={stats} />
-
-        {/* Employee Grid */}
-        <div className="mt-8">
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="text-xl font-semibold text-gray-900">All Employees</h3>
-            <a
-              href="/employees/add"
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+            <div
+                className="rounded-lg"
+                style={{
+                    backgroundColor: `color-mix(in srgb, var(--color-slate-700) 50%, transparent)`,
+                    border: "1px solid var(--color-slate-700)",
+                }}
             >
-              Add Employee
-            </a>
-          </div>
-          
-          <EmployeeGrid initialEmployees={employees} />
+                <div
+                    className="p-6 border-b"
+                    style={{ borderColor: "var(--color-slate-700)" }}
+                >
+                    <h2
+                        className="text-xl font-bold"
+                        style={{ color: "var(--color-white)" }}
+                    >
+                        Welcome back, {userRole === "admin" ? "Administrator" : "Employee"}
+                    </h2>
+                </div>
+                <div className="p-6 space-y-4">
+                    <p style={{ color: "var(--color-slate-400)" }}>
+                        You are currently logged in as{" "}
+                        <span
+                            className="font-mono px-2 py-0.5 rounded"
+                            style={{
+                                backgroundColor: `color-mix(in srgb, var(--color-teal-500) 10%, transparent)`,
+                                color: "var(--color-teal-400)",
+                            }}
+                        >
+                            {loginId}
+                        </span>
+                    </p>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                        <div
+                            className="p-4 rounded-lg flex items-center justify-between"
+                            style={{
+                                backgroundColor: `color-mix(in srgb, var(--color-teal-500) 10%, transparent)`,
+                                border: "1px solid var(--color-teal-600)",
+                            }}
+                        >
+                            <div>
+                                <p
+                                    className="font-bold"
+                                    style={{ color: "var(--color-white)" }}
+                                >
+                                    Request Time Off
+                                </p>
+                                <p
+                                    className="text-xs"
+                                    style={{ color: "var(--color-slate-400)" }}
+                                >
+                                    Submit a new leave request.
+                                </p>
+                            </div>
+                            <Button
+                                size="sm"
+                                style={{
+                                    background: `linear-gradient(to right, var(--color-teal-600), var(--color-emerald-600))`,
+                                    color: "var(--color-white)",
+                                }}
+                            >
+                                Submit
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div className="pb-24">
+                <EmployeeGrid initialEmployees={employees} viewerRole={userRole} />
+                <AttendanceTray />
+            </div>
         </div>
-      </main>
-    </div>
-  );
+    );
 }

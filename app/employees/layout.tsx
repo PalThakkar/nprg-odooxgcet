@@ -11,12 +11,12 @@ export default async function DashboardLayout({
   const loginId = headerList.get("x-user-login-id");
 
   const navItems = [
-    { label: "Dashboard", href: "/dashboard" },
+    { label: "Dashboard", href: "/employees" },
     ...(userRole === "admin"
       ? [
-          { label: "Employees", href: "/dashboard/admin/employees" },
-          { label: "Leave Approval", href: "/dashboard/admin/leaves" },
-        ]
+        { label: "Employees", href: "/admin/employees" },
+        { label: "Leave Approval", href: "/admin/leaves" },
+      ]
       : []),
   ];
 
