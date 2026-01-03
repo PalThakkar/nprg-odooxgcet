@@ -22,6 +22,8 @@ model User {
   status       String   @default("present") // present, absent, on-leave
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  status       String?  @default("absent")
+  company      Company? @relation(fields: [companyId], references: [id])
 
   data          AppData[]
   attendances   Attendance[]
@@ -32,6 +34,8 @@ model User {
   company       Company?       @relation(fields: [companyId], references: [id])
   privateInfo   PrivateInfo?
   notifications Notification[]
+  leaveBalance  LeaveBalance?
+  payrolls      Payroll[]
 
   @@map("users")
 }
@@ -56,12 +60,15 @@ model Notification {
 }
 
 model Attendance {
-  id       String    @id @default(uuid())
-  userId   String
-  checkIn  DateTime  @default(now())
-  checkOut DateTime?
-  date     DateTime  @default(now()) @db.Date
-  user     User      @relation(fields: [userId], references: [id])
+  id         String    @id @default(uuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id])
+  checkIn    DateTime  @default(now())
+  checkOut   DateTime?
+  workHours  Float?
+  extraHours Float?
+  status     String    @default("present")
+  date       DateTime  @default(now()) @db.Date
 
   @@map("attendances")
 }
@@ -101,21 +108,23 @@ model Role {
 }
 
 model LeaveRequest {
-  id           String      @id @default(uuid())
+  id           String    @id @default(uuid())
   userId       String
-  companyId    String
-  leaveType    String // paid, sick, unpaid
-  startDate    DateTime    @db.Date
-  endDate      DateTime    @db.Date
-  status       LeaveStatus @default(PENDING)
+  user         User      @relation(fields: [userId], references: [id])
+  companyId    String?
+  company      Company?  @relation(fields: [companyId], references: [id])
+  type         String // e.g. "SICK", "VACATION", "PERSONAL"
+  leaveType    String? // e.g. "paid", "sick", "unpaid"
+  startDate    DateTime
+  endDate      DateTime
+  status       String    @default("PENDING") // Using string for flexibility with PENDING/APPROVED/REJECTED or pending/approved/rejected
   reason       String?
   adminComment String?
+  remarks      String? // For compatibility with some API routes
   approvedBy   String?
   approvedAt   DateTime?
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-  company      Company     @relation(fields: [companyId], references: [id])
-  user         User        @relation(fields: [userId], references: [id])
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   @@map("leave_requests")
 }
@@ -182,6 +191,33 @@ model AppData {
 }
 
 model LeaveBalance {
+  id             String   @id @default(uuid())
+  userId         String   @unique
+  paidDaysLeft   Int      @default(24)
+  sickDaysLeft   Int      @default(7)
+  unpaidDaysLeft Int      @default(0)
+  year           Int      @default(2025)
+  updatedAt      DateTime @updatedAt
+  user           User     @relation(fields: [userId], references: [id])
+
+  @@map("leave_balances")
+}
+
+model Payroll {
+  id          String    @id @default(uuid())
+  userId      String
+  basicSalary Float
+  allowances  Float     @default(0)
+  deductions  Float     @default(0)
+  netSalary   Float
+  payPeriod   String // e.g., "2025-01"
+  status      String    @default("draft") // draft, processed, paid
+  processedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  user        User      @relation(fields: [userId], references: [id])
+
+  model LeaveBalance {
   id             String   @id @default(uuid())
   userId         String   @unique
   paidDaysLeft   Int      @default(24)

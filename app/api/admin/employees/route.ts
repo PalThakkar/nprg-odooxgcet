@@ -134,15 +134,25 @@ export async function POST(req: Request) {
 
 export async function GET() {
   try {
+    console.log('GET /api/admin/employees started');
     const headersList = await headers();
     const adminId = headersList.get('x-user-id');
     const companyId = headersList.get('x-user-company-id');
     const userRole = headersList.get('x-user-role');
+    const loginIdHeader = headersList.get('x-user-login-id');
 
-    if (!adminId || userRole !== 'admin' || !companyId) {
-      return NextResponse.json({ error: 'Unauthorized', debug: { adminId, companyId, userRole } }, { status: 403 });
+    console.log('Headers:', { adminId, companyId, userRole, loginIdHeader });
+
+    if (!(adminId || loginIdHeader) || userRole !== 'admin' || !companyId) {
+      console.log('Unauthorized access attempt');
+      return NextResponse.json({
+        error: 'Unauthorized',
+        debug: { adminId, companyId, userRole, loginIdHeader }
+      }, { status: 403 });
     }
 
+    console.log('Fetching employees for company:', companyId);
+    
     const employees = await prisma.user.findMany({
       where: {
         companyId: companyId,
@@ -155,6 +165,7 @@ export async function GET() {
       },
       orderBy: { createdAt: 'desc' }
     });
+    console.log('Employees fetched:', employees.length);
 
     return NextResponse.json({ employees });
   } catch (error: any) {
