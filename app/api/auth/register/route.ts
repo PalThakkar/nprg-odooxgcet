@@ -2,46 +2,84 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { signToken } from '@/lib/auth';
 import { hashPassword } from '@/lib/auth-node';
+import { generateLoginId } from '@/lib/id-generator';
 
 export async function POST(req: Request) {
   try {
-    const { email, password, name } = await req.json();
+    const { email, password, name, phone, companyName, companyInitials } = await req.json();
 
-    if (!email || !password) {
-      return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
+    if (!email || !password || !name || !companyName || !companyInitials) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
     // Check if user exists
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) {
-      return NextResponse.json({ error: 'User already exists' }, { status: 409 });
+      return NextResponse.json({ error: 'User with this email already exists' }, { status: 409 });
     }
 
-    // Hash password
-    const hashedPassword = await hashPassword(password);
+    const { user, loginId } = await prisma.$transaction(async (tx) => {
+      // 1. Get or Create Admin Role
+      let role = await tx.role.findUnique({ where: { name: 'admin' } });
+      if (!role) {
+        role = await tx.role.create({ data: { name: 'admin', description: 'Company Admin role' } });
+      }
 
-    // Get or Create Default Role 'user'
-    let role = await prisma.role.findUnique({ where: { name: 'user' } });
-    if (!role) {
-      role = await prisma.role.create({ data: { name: 'user', description: 'Default user role' } });
-    }
+      // 2. Create Company
+      const company = await tx.company.create({
+        data: {
+          name: companyName,
+          initials: companyInitials.toUpperCase().substring(0, 2),
+        }
+      });
 
-    // Create User
-    const user = await prisma.user.create({
-      data: {
-        email,
-        password: hashedPassword,
+      // 3. Generate Login ID
+      const generatedLoginId = await generateLoginId(
+        company.id,
+        company.initials,
         name,
-        roleId: role.id
-      },
-      include: { role: true }
+        new Date().getFullYear(),
+        tx
+      );
+
+      // 4. Hash password
+      const hashedPassword = await hashPassword(password);
+
+      // 5. Create Admin User
+      const newUser = await tx.user.create({
+        data: {
+          email,
+          password: hashedPassword,
+          name,
+          phone,
+          loginId: generatedLoginId,
+          companyId: company.id,
+          roleId: role.id,
+          isFirstLogin: true,
+        },
+        include: { role: true, company: true }
+      });
+
+      return { user: newUser, loginId: generatedLoginId };
     });
 
     // Generate Token
-    const token = await signToken({ id: user.id, email: user.email, role: user.role.name });
+    const token = await signToken({ 
+      id: user.id, 
+      email: user.email, 
+      role: user.role.name,
+      companyId: user.companyId 
+    });
 
     return NextResponse.json({ 
-        user: { id: user.id, email: user.email, name: user.name, role: user.role.name }, 
+        user: { 
+          id: user.id, 
+          email: user.email, 
+          name: user.name, 
+          loginId: user.loginId,
+          role: user.role.name,
+          company: user.company?.name
+        }, 
         token 
     }, { status: 201 });
 

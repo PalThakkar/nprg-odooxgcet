@@ -5,12 +5,17 @@ import { comparePassword } from '@/lib/auth-node';
 
 export async function POST(req: Request) {
   try {
-    const { email, password } = await req.json();
+    const { email, password } = await req.json(); // 'email' might be a Login ID
 
-    // Find User
-    const user = await prisma.user.findUnique({ 
-        where: { email },
-        include: { role: true }
+    // Find User by email OR loginId
+    const user = await prisma.user.findFirst({ 
+        where: {
+          OR: [
+            { email: email },
+            { loginId: email }
+          ]
+        },
+        include: { role: true, company: true }
     });
 
     if (!user) {
@@ -24,11 +29,23 @@ export async function POST(req: Request) {
     }
 
     // Generate Token
-    const token = await signToken({ id: user.id, email: user.email, role: user.role.name });
+    const token = await signToken({ 
+      id: user.id, 
+      email: user.email, 
+      role: user.role.name,
+      companyId: user.companyId 
+    });
 
     // Set cookie (optional, good for client) but we return token too
     const response = NextResponse.json({ 
-        user: { id: user.id, email: user.email, name: user.name, role: user.role.name }, 
+        user: { 
+          id: user.id, 
+          email: user.email, 
+          name: user.name, 
+          loginId: user.loginId,
+          role: user.role.name,
+          company: user.company?.name
+        }, 
         token 
     });
     
