@@ -14,9 +14,39 @@ export default function SalaryInfoView({
   employeeId,
   isAdmin,
 }: SalaryInfoViewProps) {
-  const [wage, setWage] = useState(50000);
+  const [wage, setWage] = useState(0); // Default to 0 initially
   const [workingDays, setWorkingDays] = useState(5);
   const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
+  const [statusMsg, setStatusMsg] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+
+  useEffect(() => {
+    async function fetchSalary() {
+      try {
+        const res = await fetch(`/api/admin/employees/${employeeId}/salary`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.salaryInfo) {
+            setWage(data.salaryInfo.monthlyWage);
+            setWorkingDays(data.salaryInfo.workingDays);
+          } else {
+            setWage(50000); // Default if no data
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch salary info", error);
+      } finally {
+        setFetching(false);
+      }
+    }
+    if (isAdmin) {
+      fetchSalary();
+    } else {
+      // If not admin, we might still want to show data, but readonly. Logic same.
+      fetchSalary();
+    }
+  }, [employeeId, isAdmin]);
+
 
   // Percentages (Rules)
   const [rules, setRules] = useState({
@@ -42,8 +72,59 @@ export default function SalaryInfoView({
   const pfEmployee = (basic * rules.pf) / 100;
   const pfEmployer = (basic * rules.pf) / 100; // Usually same
 
+  const handleSave = async () => {
+    setLoading(true);
+    setStatusMsg(null);
+    try {
+      const payload = {
+        monthlyWage: wage,
+        yearlyWage,
+        workingDays,
+        basic,
+        hra,
+        standardAllowance: standard,
+        performanceBonus: performance,
+        lta,
+        fixedAllowance,
+        pfEmployee,
+        pfEmployer,
+        professionalTax: rules.tax
+      };
+
+      const res = await fetch(`/api/admin/employees/${employeeId}/salary`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || 'Failed to update');
+      }
+
+      setStatusMsg({ type: 'success', text: 'Salary structure updated successfully!' });
+    } catch (error: any) {
+      setStatusMsg({ type: 'error', text: error.message });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (fetching) {
+    return <div className="flex justify-center p-10"><Loader2 className="w-8 h-8 animate-spin text-gray-400" /></div>;
+  }
+
   return (
     <div className="space-y-8 animate-in fade-in duration-500 py-4">
+      {statusMsg && (
+        <div className={cn(
+          "p-4 rounded-xl font-bold text-sm flex items-center justify-between",
+          statusMsg.type === 'success' ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-700"
+        )}>
+          <span>{statusMsg.text}</span>
+        </div>
+      )}
+
       {/* Wage Input Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div
@@ -126,7 +207,7 @@ export default function SalaryInfoView({
             </div>
             <div className="space-y-2">
               <span
-                className="text-[10px] font-bold uppercase"
+                className="text-xs font-bold uppercase"
                 style={{ color: "var(--color-slate-400)" }}
               >
                 Break Time (hrs)
@@ -312,6 +393,8 @@ export default function SalaryInfoView({
 
       {isAdmin && (
         <Button
+          onClick={handleSave}
+          disabled={loading}
           className="w-full h-14 rounded-2xl font-black shadow-lg"
           style={{
             background:
@@ -319,7 +402,7 @@ export default function SalaryInfoView({
             color: "var(--color-white)",
           }}
         >
-          <Save className="w-5 h-5 mr-3" />
+          {loading ? <Loader2 className="w-5 h-5 animate-spin mr-3" /> : <Save className="w-5 h-5 mr-3" />}
           Update Salary Structure
         </Button>
       )}

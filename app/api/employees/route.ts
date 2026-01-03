@@ -54,10 +54,8 @@ export async function GET(request: Request) {
                 name: true,
                 email: true,
                 employeeId: true,
-                jobTitle: true,
-                department: true,
                 status: true,
-                dateJoined: true,
+                createdAt: true,
                 phone: true,
                 role: {
                     select: {
@@ -65,7 +63,6 @@ export async function GET(request: Request) {
                         name: true,
                     },
                 },
-                createdAt: true,
             },
             orderBy: {
                 createdAt: 'desc',
@@ -148,23 +145,17 @@ export async function POST(request: Request) {
             email,
             password: hashedPassword,
             phone,
-            jobTitle,
-            department,
-            salary,
             employeeId,
             companyId: currentUser.companyId,
             roleId,
-            dateJoined: new Date(),
         },
         select: {
             id: true,
             name: true,
             email: true,
             employeeId: true,
-            jobTitle: true,
-            department: true,
             status: true,
-            dateJoined: true,
+            createdAt: true,
             phone: true,
             role: {
                 select: {
