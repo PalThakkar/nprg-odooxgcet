@@ -17,50 +17,41 @@ model User {
   employeeId   String?      @unique
   companyId    String?
   roleId       String
-  isFirstLogin Boolean      @default(true)
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
-  avatarUrl    String?
-  status       String       @default("absent")
-  jobTitle     String?
-  department   String?
-  dateJoined   DateTime?
-  salary       Float?
-  data         AppData[]
-  attendances  Attendance[]
+  role         Role     @relation(fields: [roleId], references: [id])
+  isFirstLogin Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  data          AppData[]
+  attendances   Attendance[]
   leaveRequests LeaveRequest[]
-  leaveBalance LeaveBalance?
-  payroll      Payroll[]
-  company      Company?     @relation(fields: [companyId], references: [id])
-  role         Role         @relation(fields: [roleId], references: [id])
+  salaryInfo    SalaryInfo?
+  privateInfo   PrivateInfo?
 
   @@map("users")
 }
 
 model Attendance {
-  id          String    @id @default(uuid())
-  userId      String
-  checkIn     DateTime  @default(now())
-  checkOut    DateTime?
-  date        DateTime  @default(now()) @db.Date
-  workHours   Float?    
-  extraHours  Float?    @default(0)
-  status      String    @default("present") // present, absent, half-day, leave
-  remarks     String?
-  user        User      @relation(fields: [userId], references: [id])
+  id       String    @id @default(uuid())
+  userId   String
+  user     User      @relation(fields: [userId], references: [id])
+  checkIn  DateTime  @default(now())
+  checkOut DateTime?
+  date     DateTime  @default(now()) @db.Date
 
   @@map("attendances")
 }
 
 model Company {
-  id        String            @id @default(uuid())
-  name      String
-  initials  String
-  logoUrl   String?
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
-  counters  EmployeeCounter[]
-  users     User[]
+  id            String            @id @default(uuid())
+  name          String
+  initials      String // For Login ID generation: "OI" -> Odoo India
+  logoUrl       String?
+  users         User[]
+  counters      EmployeeCounter[]
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  leaveRequests LeaveRequest[]
 
   @@map("companies")
 }
@@ -83,6 +74,87 @@ model Role {
   users       User[]
 
   @@map("roles")
+}
+
+model LeaveRequest {
+  id           String      @id @default(uuid())
+  userId       String
+  user         User        @relation(fields: [userId], references: [id])
+  companyId    String
+  company      Company     @relation(fields: [companyId], references: [id])
+  type         String // e.g. "SICK", "VACATION", "PERSONAL"
+  startDate    DateTime
+  endDate      DateTime
+  status       LeaveStatus @default(PENDING)
+  reason       String?
+  adminComment String?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@map("leave_requests")
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model SalaryInfo {
+  id           String @id @default(uuid())
+  userId       String @unique
+  user         User   @relation(fields: [userId], references: [id])
+  monthlyWage  Float
+  yearlyWage   Float
+  workingDays  Int    @default(5)
+  workingHours Float  @default(8)
+  breakTime    Float  @default(1) // in hours
+
+  // Salary Components
+  basic             Float
+  hra               Float
+  standardAllowance Float
+  performanceBonus  Float
+  lta               Float
+  fixedAllowance    Float
+
+  // Deductions
+  pfEmployee      Float
+  pfEmployer      Float
+  professionalTax Float @default(200)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("salary_info")
+}
+
+model PrivateInfo {
+  id             String    @id @default(uuid())
+  userId         String    @unique
+  user           User      @relation(fields: [userId], references: [id])
+  
+  // Personal Info
+  dateOfBirth    DateTime?
+  residingAddress String?
+  nationality    String?
+  personalEmail  String?
+  gender         String?
+  maritalStatus  String?
+  dateOfJoining  DateTime?
+  
+  // Bank Details
+  accountNumber  String?
+  bankName       String?
+  ifscCode       String?
+  panNo          String?
+  uanNo          String?
+  empCode        String?
+
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@map("private_info")
 }
 
 model AppData {
