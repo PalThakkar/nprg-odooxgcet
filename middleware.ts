@@ -2,8 +2,8 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { verifyToken } from '@/lib/auth';
 
-const PROTECTED_ROUTES = ['/dashboard', '/api/data', '/api/leaves']; // Add more path prefixes
-const ADMIN_ROUTES = ['/dashboard/admin', '/api/leaves/admin', '/api/salary/admin', '/api/admin/employees'];
+const PROTECTED_ROUTES = ['/employees', '/api/data', '/api/leaves'];
+const ADMIN_ROUTES = ['/admin', '/api/leaves/admin', '/api/salary/admin', '/api/admin'];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -41,11 +41,11 @@ export async function middleware(request: NextRequest) {
   }
 
   // 4. RBAC Check (Admin)
-  if (isAdminRoute && (payload as any).role !== 'admin') {
+  if (isAdminRoute && (payload as any).role?.toLowerCase() !== 'admin') {
     if (pathname.startsWith('/api')) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
-    return NextResponse.redirect(new URL('/dashboard', request.url)); // Redirect to user dashboard
+    return NextResponse.redirect(new URL('/employees', request.url)); // Redirect to user dashboard
   }
 
   // 5. Success - Attach user info via headers (optional, for Server Components)
@@ -68,7 +68,8 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/dashboard/:path*',
+    '/admin/:path*',
+    '/employees/:path*',
     '/api/data/:path*',
     '/api/leaves/:path*',
     '/api/salary/:path*',

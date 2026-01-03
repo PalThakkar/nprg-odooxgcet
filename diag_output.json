@@ -1,0 +1,62 @@
+{
+  "roleNames": [
+    "admin",
+    "user"
+  ],
+  "users": [
+    {
+      "email": "u24ai026@aid.svnit.ac.in",
+      "role": "admin",
+      "company": "Sardar Vallabhbhai National Institute of Technology (SVNIT), Surat",
+      "companyId": "126f795f-40e6-4696-a096-cc4e0ce591e7"
+    },
+    {
+      "email": "admin@company.com",
+      "role": "admin",
+      "company": "Odoo Ind",
+      "companyId": "72ce700d-7520-46ed-a376-15408a6d3f8b"
+    },
+    {
+      "email": "rushang697@gmail.com",
+      "role": "admin",
+      "company": "personal use",
+      "companyId": "23d75d77-7b57-455b-845b-854fe34b1945"
+    },
+    {
+      "email": "tathya31276@gmail.com",
+      "role": "user",
+      "company": "personal use",
+      "companyId": "23d75d77-7b57-455b-845b-854fe34b1945"
+    },
+    {
+      "email": "u24cs073@coed.svnit.ac.in",
+      "role": "admin",
+      "company": "Odoo India",
+      "companyId": "aeabeb28-3489-43d5-a228-613ee793a645"
+    },
+    {
+      "email": "admin@test.com",
+      "role": "admin",
+      "company": "Test Company",
+      "companyId": "b3274182-c05c-4488-9f6a-9ce41cdb2c7b"
+    },
+    {
+      "email": "john@company.com",
+      "role": "user",
+      "company": "Odoo India",
+      "companyId": "aeabeb28-3489-43d5-a228-613ee793a645"
+    },
+    {
+      "email": "u24cs072@coed.svnit.ac.in",
+      "role": "admin",
+      "company": "Apple Ball",
+      "companyId": "c9b91245-123d-49d8-a9bd-a13a10e25649"
+    },
+    {
+      "email": "damgaurav04@gmail.com",
+      "role": "user",
+      "company": "Sardar Vallabhbhai National Institute of Technology (SVNIT), Surat",
+      "companyId": "126f795f-40e6-4696-a096-cc4e0ce591e7"
+    }
+  ]
+}

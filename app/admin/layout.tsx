@@ -1,5 +1,6 @@
 import { headers } from "next/headers";
 import Link from "next/link";
+import LogoutButton from "@/components/LogoutButton";
 
 export default async function DashboardLayout({
   children,
@@ -12,7 +13,7 @@ export default async function DashboardLayout({
 
   const navItems = [
     { label: "Dashboard", href: "/admin/employees" },
-    ...(userRole === "admin"
+    ...(userRole?.toLowerCase() === "admin"
       ? [
         { label: "Employees", href: "/admin/employees" },
         { label: "Leave Approval", href: "/admin/leaves" },
@@ -56,7 +57,7 @@ export default async function DashboardLayout({
         <nav className="flex-1 space-y-1">
           {navItems.map((item) => (
             <Link
-              key={item.href}
+              key={item.label}
               href={item.href}
               className="flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors group"
               style={{ color: "var(--color-slate-300)" }}
@@ -116,12 +117,7 @@ export default async function DashboardLayout({
             </span>
           </div>
           <div className="ml-auto flex items-center gap-4">
-            <button
-              className="text-sm font-medium transition-colors"
-              style={{ color: "var(--color-slate-400)" }}
-            >
-              Logout
-            </button>
+            <LogoutButton />
           </div>
         </header>
         <div className="p-0">{children}</div>

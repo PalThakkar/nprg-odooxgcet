@@ -92,9 +92,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const isAuthenticated = !!user;
-  const isAdmin = user?.role === 'admin';
-  const isHR = user?.role === 'hr';
-  const isEmployee = user?.role === 'employee';
+  const isAdmin = user?.role?.toLowerCase() === 'admin';
+  const isHR = user?.role?.toLowerCase() === 'hr';
+  const isEmployee = user?.role?.toLowerCase() === 'employee' || user?.role?.toLowerCase() === 'user';
 
   const value: AuthContextType = {
     user,

@@ -5,18 +5,22 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function Home() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, isAdmin } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
     if (!isLoading) {
       if (isAuthenticated) {
-        router.push('/employees');
+        if (isAdmin) {
+          router.push('/admin/employees');
+        } else {
+          router.push('/employees');
+        }
       } else {
         router.push('/auth/login');
       }
     }
-  }, [isAuthenticated, isLoading, router]);
+  }, [isAuthenticated, isLoading, router, isAdmin]);
 
   if (isLoading) {
     return (
