@@ -9,8 +9,13 @@ export default async function DashboardPage() {
     const headersList = await headers();
     const userId = headersList.get('x-user-id');
 
+    const companyId = headersList.get('x-user-company-id');
+
     // Fetch employees from the database
     const employees = await prisma.user.findMany({
+        where: {
+            companyId: companyId || '' // Ensure we filter by company, if no companyId (shouldn't happen due to middleware) it returns empty or matches null depending on logic, but empty string is safer to return nothing if uuid expected
+        },
         include: {
             role: true,
         },
