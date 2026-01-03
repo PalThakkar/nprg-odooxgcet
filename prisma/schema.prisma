@@ -16,6 +16,8 @@ model User {
   password     String
   name         String?
   phone        String?
+  avatarUrl    String?
+  status       String   @default("absent") // present, absent, on-leave
   companyId    String?
   company      Company? @relation(fields: [companyId], references: [id])
   roleId       String
@@ -25,10 +27,22 @@ model User {
   updatedAt    DateTime @updatedAt
 
   data          AppData[]
+  attendances   Attendance[]
   leaveRequests LeaveRequest[]
   salaryInfo    SalaryInfo?
 
   @@map("users")
+}
+
+model Attendance {
+  id       String    @id @default(uuid())
+  userId   String
+  user     User      @relation(fields: [userId], references: [id])
+  checkIn  DateTime  @default(now())
+  checkOut DateTime?
+  date     DateTime  @default(now()) @db.Date
+
+  @@map("attendances")
 }
 
 model Company {

@@ -1,12 +1,25 @@
 import { headers } from 'next/headers';
+import prisma from '@/lib/prisma';
+import EmployeeGrid from '@/components/EmployeeGrid';
+import AttendanceTray from '@/components/AttendanceTray';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
 export default async function DashboardPage() {
     const headersList = await headers();
     const userId = headersList.get('x-user-id');
-    const userRole = headersList.get('x-user-role');
+
+    // Fetch employees from the database
+    const employees = await prisma.user.findMany({
+        include: {
+            role: true,
+        },
+        orderBy: {
+            name: 'asc'
+        }
+    });
     const loginId = headersList.get('x-user-login-id');
+    const userRole = headersList.get('x-user-role');
 
     return (
         <div className="space-y-6">
@@ -44,6 +57,10 @@ export default async function DashboardPage() {
                     </div>
                 </CardContent>
             </Card>
+            <div className="pb-24">
+                <EmployeeGrid initialEmployees={employees} />
+                <AttendanceTray />
+            </div>
         </div>
     );
 }
