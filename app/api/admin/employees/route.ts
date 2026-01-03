@@ -1,27 +1,141 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
 import { headers } from 'next/headers';
+import prisma from '@/lib/prisma';
+import { hashPassword } from '@/lib/auth-node';
+import { generateLoginId } from '@/lib/id-generator';
+import { sendWelcomeEmail } from '@/lib/email';
+
+export async function POST(req: Request) {
+  try {
+    const headersList = await headers();
+    const adminId = headersList.get('x-user-id');
+    const companyId = headersList.get('x-user-company-id');
+    const userRole = headersList.get('x-user-role');
+
+    if (!adminId || userRole !== 'admin' || !companyId) {
+      return NextResponse.json({ error: 'Unauthorized: Admin access required' }, { status: 403 });
+    }
+
+    const { name, email, password, phone } = await req.json();
+
+    if (!name || !email || !password) {
+      return NextResponse.json({ error: 'Missing required fields: name, email, password' }, { status: 400 });
+    }
+
+    // Check if user exists
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+    if (existingUser) {
+      return NextResponse.json({ error: 'A user with this email already exists' }, { status: 409 });
+    }
+
+    const newUser = await prisma.$transaction(async (tx: any) => {
+      // 1. Get Company Details for ID generation
+      const company = await tx.company.findUnique({
+        where: { id: companyId },
+        select: { initials: true, id: true }
+      });
+
+      if (!company) {
+        throw new Error('Associated company not found');
+      }
+
+      // 2. Generate Unique Login ID using existing template
+      const loginId = await generateLoginId(
+        company.id,
+        company.initials,
+        name,
+        new Date().getFullYear(),
+        tx
+      );
+
+      // 3. Hash Initial Password
+      const hashedPassword = await hashPassword(password);
+
+      // 4. Get 'user' role
+      let userRoleRecord = await tx.role.findUnique({ where: { name: 'user' } });
+      if (!userRoleRecord) {
+        userRoleRecord = await tx.role.create({
+          data: { name: 'user', description: 'Standard employee role' }
+        });
+      }
+
+      // 5. Create the User
+      return await tx.user.create({
+        data: {
+          name,
+          email,
+          password: hashedPassword,
+          phone,
+          loginId,
+          companyId: company.id,
+          roleId: userRoleRecord.id,
+          status: 'absent',
+          isFirstLogin: true,
+        },
+        select: {
+          id: true,
+          loginId: true,
+          name: true,
+          email: true
+        }
+      });
+    });
+
+    // 6. Send Welcome Email (Non-blocking or catch errors to not fail user creation)
+    try {
+      // Get the company name from the user's company relation
+      const company = await prisma.company.findUnique({
+        where: { id: companyId! }
+      });
+
+      await sendWelcomeEmail({
+        to: email,
+        name,
+        loginId: newUser.loginId!,
+        password: password, // Send the plain text password from the request
+        companyName: company?.name || 'Odoo India'
+      });
+    } catch (emailError) {
+      console.error('Failed to send welcome email, but user was created:', emailError);
+    }
+
+    return NextResponse.json({
+      message: 'Employee created successfully',
+      user: newUser
+    }, { status: 201 });
+
+  } catch (error: any) {
+    console.error('Admin Create Employee Error:', error);
+    return NextResponse.json({
+      error: error.message || 'Internal Server Error'
+    }, { status: 500 });
+  }
+}
 
 export async function GET() {
   try {
-    const headerList = await headers();
-    const companyId = headerList.get('x-user-company-id');
+    const headersList = await headers();
+    const adminId = headersList.get('x-user-id');
+    const companyId = headersList.get('x-user-company-id');
+    const userRole = headersList.get('x-user-role');
 
-    if (!companyId) {
-      return NextResponse.json({ error: 'Company ID not found in session' }, { status: 400 });
+    if (!adminId || userRole !== 'admin' || !companyId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
     const employees = await prisma.user.findMany({
-      where: { companyId },
-      include: {
-        role: { select: { name: true } }
+      where: {
+        companyId,
+        role: { name: 'user' }
       },
-      orderBy: { name: 'asc' }
+      include: {
+        role: true
+      },
+      orderBy: { createdAt: 'desc' }
     });
 
-    return NextResponse.json(employees);
+    return NextResponse.json({ employees });
   } catch (error: any) {
-    console.error('Fetch employees error:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

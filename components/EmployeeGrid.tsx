@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import EmployeeCard from '@/components/EmployeeCard';
+import EmployeeDetailTile from '@/components/EmployeeDetailTile';
 import { Search as SearchIcon, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -11,6 +12,8 @@ interface Employee {
     loginId: string | null;
     status: string;
     avatarUrl: string | null;
+    email?: string;
+    phone?: string;
     role: {
         name: string;
     };
@@ -18,6 +21,7 @@ interface Employee {
 
 export default function EmployeeGrid({ initialEmployees }: { initialEmployees: Employee[] }) {
     const [searchQuery, setSearchQuery] = useState('');
+    const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
 
     const filteredEmployees = initialEmployees.filter((employee: Employee) => {
         const name = (employee.name || employee.loginId || '').toLowerCase();
@@ -65,6 +69,7 @@ export default function EmployeeGrid({ initialEmployees }: { initialEmployees: E
                         role={employee.role?.name || 'Employee'}
                         avatarUrl={employee.avatarUrl || undefined}
                         status={employee.status as any}
+                        onClick={() => setSelectedEmployee(employee)}
                     />
                 ))}
 
@@ -85,6 +90,14 @@ export default function EmployeeGrid({ initialEmployees }: { initialEmployees: E
                     </div>
                 )}
             </div>
+
+            {/* Floating Tile */}
+            {selectedEmployee && (
+                <EmployeeDetailTile
+                    employee={selectedEmployee}
+                    onClose={() => setSelectedEmployee(null)}
+                />
+            )}
         </div>
     );
 }
