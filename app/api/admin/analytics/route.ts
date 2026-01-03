@@ -96,11 +96,11 @@ export async function GET() {
                         ? Math.round((todayAttendance / totalEmployees) * 100)
                         : 0,
                 },
-                departments: departmentStats.map((d) => ({
+                departments: departmentStats.map((d: { department: string | null; _count: { id: number } }) => ({
                     name: d.department || "Unassigned",
                     count: d._count.id,
                 })),
-                weeklyAttendance: weeklyAttendance.map((w) => ({
+                weeklyAttendance: weeklyAttendance.map((w: { date: Date; _count: { id: number } }) => ({
                     date: w.date,
                     count: w._count.id,
                 })),

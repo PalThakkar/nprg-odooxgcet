@@ -103,7 +103,13 @@ export async function GET(request: Request) {
         });
 
         // Admin/HR specific data
-        let adminData = undefined;
+        let adminData: {
+            totalEmployees: number;
+            pendingLeaveRequests: number;
+            todayAttendances: number;
+            presentToday: number;
+            absentToday: number;
+        } | undefined = undefined;
         if (userRole === 'admin' || userRole === 'hr') {
             const [totalEmployees, pendingLeaveRequests, todayAttendances] = await Promise.all([
                 prisma.user.count(),

@@ -25,7 +25,7 @@ export async function POST(req: Request) {
     }
 
     const checkOutTime = new Date();
-    let lastProcessedAttendance = null;
+    let lastProcessedAttendance: typeof activeAttendances[0] | null = null;
 
     // Fetch user company settings once
     const user = await prisma.user.findUnique({
