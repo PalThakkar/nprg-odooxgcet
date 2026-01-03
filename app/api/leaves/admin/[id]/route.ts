@@ -45,6 +45,17 @@ export async function PATCH(
       }
     });
 
+    // If approved and active today, update user status
+    if (status === 'APPROVED') {
+      const now = new Date();
+      if (now >= new Date(updatedLeave.startDate) && now <= new Date(updatedLeave.endDate)) {
+        await prisma.user.update({
+          where: { id: updatedLeave.userId },
+          data: { status: 'on-leave' }
+        });
+      }
+    }
+
     return NextResponse.json(updatedLeave);
   } catch (error: any) {
     console.error('Update leave error:', error);

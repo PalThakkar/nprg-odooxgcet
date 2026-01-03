@@ -23,8 +23,27 @@ export default async function DashboardPage() {
             name: 'asc'
         }
     });
-    const loginId = headersList.get('x-user-login-id');
-    const userRole = headersList.get('x-user-role');
+
+    // Fetch current user for status
+    const currentUser = await prisma.user.findUnique({
+        where: { id: userId || '' },
+        include: { role: true }
+    });
+
+    const userRole = currentUser?.role?.name;
+    const loginId = currentUser?.loginId;
+
+    const statusColors: Record<string, string> = {
+        present: 'text-green-600',
+        absent: 'text-red-600',
+        'on-leave': 'text-blue-600'
+    };
+
+    const statusText: Record<string, string> = {
+        present: 'Active',
+        absent: 'Absent',
+        'on-leave': 'On Leave'
+    };
 
     return (
         <div className="space-y-6">
@@ -37,7 +56,9 @@ export default async function DashboardPage() {
                 <Card className="border-none shadow-sm">
                     <CardContent className="p-6">
                         <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Profile Status</p>
-                        <p className="text-2xl font-bold mt-2 text-green-600">Active</p>
+                        <p className={`text-2xl font-bold mt-2 capitalize ${statusColors[currentUser?.status || 'absent'] || 'text-gray-600'}`}>
+                            {statusText[currentUser?.status || ''] || currentUser?.status || 'Absent'}
+                        </p>
                     </CardContent>
                 </Card>
             </div>

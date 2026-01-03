@@ -12,6 +12,7 @@ interface Employee {
     email: string;
     loginId: string;
     role: { name: string };
+    status: string;
 }
 
 export default function EmployeeList() {
@@ -70,12 +71,21 @@ export default function EmployeeList() {
                             <CardContent className="p-0">
                                 <div className="p-6">
                                     <div className="flex items-center gap-4">
-                                        <div className="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-lg uppercase">
-                                            {emp.name.substring(0, 2)}
+                                        <div className="relative">
+                                            <div className="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-lg uppercase">
+                                                {emp.name.substring(0, 2)}
+                                            </div>
+                                            <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white ${emp.status === 'present' ? 'bg-green-500' :
+                                                    emp.status === 'on-leave' ? 'bg-blue-500' : 'bg-gray-300'
+                                                }`} title={emp.status}></div>
                                         </div>
                                         <div>
                                             <h3 className="font-bold group-hover:text-indigo-600 transition-colors">{emp.name}</h3>
-                                            <p className="text-sm text-muted-foreground">{emp.loginId} • {emp.email}</p>
+                                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                                <span>{emp.loginId}</span>
+                                                <span>•</span>
+                                                <span className="capitalize">{emp.status || 'absent'}</span>
+                                            </div>
                                         </div>
                                     </div>
                                     <div className="mt-4 flex items-center justify-between border-t pt-4">
