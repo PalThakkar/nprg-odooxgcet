@@ -64,27 +64,30 @@ export async function POST(req: Request) {
     });
 
     // Generate Token
-    const token = await signToken({ 
-      id: user.id, 
-      email: user.email, 
+    const token = await signToken({
+      id: user.id,
+      email: user.email,
       role: user.role.name,
-      companyId: user.companyId 
+      companyId: user.companyId
     });
 
-    return NextResponse.json({ 
-        user: { 
-          id: user.id, 
-          email: user.email, 
-          name: user.name, 
-          loginId: user.loginId,
-          role: user.role.name,
-          company: user.company?.name
-        }, 
-        token 
+    return NextResponse.json({
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        loginId: user.loginId,
+        role: user.role.name,
+        company: user.company?.name
+      },
+      token
     }, { status: 201 });
 
   } catch (error: any) {
     console.error('Register error:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json({
+      error: error.message || 'Internal Server Error',
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    }, { status: 500 });
   }
 }
