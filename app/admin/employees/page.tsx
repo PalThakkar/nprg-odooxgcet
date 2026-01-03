@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useAuth } from "@/contexts/AuthContext";
 import Link from "next/link";
 
 interface Employee {
@@ -27,6 +28,7 @@ interface Employee {
 }
 
 export default function EmployeeList() {
+  const { user } = useAuth();
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -60,9 +62,10 @@ export default function EmployeeList() {
 
   const filteredEmployees = employees.filter(
     (emp) =>
-      (emp.name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      emp.id !== user?.id && // Exclude current admin user
+      ((emp.name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
       (emp.loginId || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (emp.email || "").toLowerCase().includes(searchQuery.toLowerCase())
+      (emp.email || "").toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   return (

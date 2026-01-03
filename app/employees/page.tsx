@@ -11,8 +11,8 @@ export default async function DashboardPage() {
 
   // Fetch current user for status and company info
   const currentUser = await prisma.user.findUnique({
-    where: { id: userId || '' },
-    include: { role: true }
+    where: { id: userId || "" },
+    include: { role: true },
   });
 
   const userRole = currentUser?.role?.name || headersList.get("x-user-role");
@@ -22,26 +22,26 @@ export default async function DashboardPage() {
   // Fetch employees from the same company
   const employees = await prisma.user.findMany({
     where: {
-      companyId: companyId || ''
+      companyId: companyId || "",
     },
     include: {
       role: true,
     },
     orderBy: {
-      name: 'asc'
-    }
+      name: "asc",
+    },
   });
 
   const statusColors: Record<string, string> = {
-    present: 'text-green-600',
-    absent: 'text-red-600',
-    'on-leave': 'text-blue-600'
+    present: "text-green-600",
+    absent: "text-red-600",
+    "on-leave": "text-blue-600",
   };
 
   const statusText: Record<string, string> = {
-    present: 'Active',
-    absent: 'Absent',
-    'on-leave': 'On Leave'
+    present: "Active",
+    absent: "Absent",
+    "on-leave": "On Leave",
   };
 
   return (
@@ -73,28 +73,7 @@ export default async function DashboardPage() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div
-          className="p-6 rounded-lg"
-          style={{
-            backgroundColor: `color-mix(in srgb, var(--color-slate-700) 50%, transparent)`,
-            border: "1px solid var(--color-slate-700)",
-          }}
-        >
-          <p
-            className="text-xs font-bold uppercase tracking-widest"
-            style={{ color: "var(--color-slate-400)" }}
-          >
-            Profile Status
-          </p>
-          <p
-            className={`text-2xl font-bold mt-2 capitalize ${statusColors[currentUser?.status || 'absent'] || 'text-gray-600'}`}
-          >
-            {statusText[currentUser?.status || ''] || currentUser?.status || 'Absent'}
-          </p>
-        </div>
-      </div>
-
+      {/* Welcome Section */}
       <div
         className="rounded-lg"
         style={{
@@ -162,9 +141,213 @@ export default async function DashboardPage() {
           </div>
         </div>
       </div>
-      <div className="pb-24">
-        <EmployeeGrid initialEmployees={employees} viewerRole={userRole} />
-        <AttendanceTray />
+
+      {/* User Details Section */}
+      <div
+        className="rounded-2xl overflow-hidden border"
+        style={{
+          backgroundColor: `color-mix(in srgb, var(--color-slate-800) 50%, transparent)`,
+          border: "1px solid var(--color-slate-700)",
+        }}
+      >
+        <div className="px-8 pb-8">
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-4 py-6 border-b border-slate-700 mb-6">
+            <div className="flex-1">
+              <h2
+                className="text-3xl font-bold mb-1"
+                style={{ color: "var(--color-white)" }}
+              >
+                {currentUser?.name || "Employee"}
+              </h2>
+              <p
+                className="text-sm"
+                style={{ color: "var(--color-slate-400)" }}
+              >
+                {currentUser?.jobTitle || ""}
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div
+              className="p-6 rounded-xl"
+              style={{
+                backgroundColor: `color-mix(in srgb, var(--color-slate-700) 50%, transparent)`,
+                border: "1px solid var(--color-slate-700)",
+              }}
+            >
+              <p
+                className="text-xs font-bold uppercase tracking-widest mb-2"
+                style={{ color: "var(--color-slate-400)" }}
+              >
+                Employee ID
+              </p>
+              <p
+                className="text-lg font-bold font-mono"
+                style={{ color: "var(--color-teal-400)" }}
+              >
+                {currentUser?.employeeId || "Not assigned"}
+              </p>
+            </div>
+
+            <div
+              className="p-6 rounded-xl"
+              style={{
+                backgroundColor: `color-mix(in srgb, var(--color-slate-700) 50%, transparent)`,
+                border: "1px solid var(--color-slate-700)",
+              }}
+            >
+              <p
+                className="text-xs font-bold uppercase tracking-widest mb-2"
+                style={{ color: "var(--color-slate-400)" }}
+              >
+                Email
+              </p>
+              <p
+                className="text-sm font-medium truncate"
+                style={{ color: "var(--color-slate-300)" }}
+              >
+                {currentUser?.email || "Not provided"}
+              </p>
+            </div>
+
+            <div
+              className="p-6 rounded-xl"
+              style={{
+                backgroundColor: `color-mix(in srgb, var(--color-slate-700) 50%, transparent)`,
+                border: "1px solid var(--color-slate-700)",
+              }}
+            >
+              <p
+                className="text-xs font-bold uppercase tracking-widest mb-2"
+                style={{ color: "var(--color-slate-400)" }}
+              >
+                Phone
+              </p>
+              <p
+                className="text-lg font-bold"
+                style={{ color: "var(--color-slate-300)" }}
+              >
+                {currentUser?.phone || "Not provided"}
+              </p>
+            </div>
+
+            <div
+              className="p-6 rounded-xl"
+              style={{
+                backgroundColor: `color-mix(in srgb, var(--color-slate-700) 50%, transparent)`,
+                border: "1px solid var(--color-slate-700)",
+              }}
+            >
+              <p
+                className="text-xs font-bold uppercase tracking-widest mb-2"
+                style={{ color: "var(--color-slate-400)" }}
+              >
+                Department
+              </p>
+              <p
+                className="text-lg font-bold"
+                style={{ color: "var(--color-slate-300)" }}
+              >
+                {currentUser?.department || "Not assigned"}
+              </p>
+            </div>
+
+            <div
+              className="p-6 rounded-xl"
+              style={{
+                backgroundColor: `color-mix(in srgb, var(--color-slate-700) 50%, transparent)`,
+                border: "1px solid var(--color-slate-700)",
+              }}
+            >
+              <p
+                className="text-xs font-bold uppercase tracking-widest mb-2"
+                style={{ color: "var(--color-slate-400)" }}
+              >
+                Role
+              </p>
+              <p
+                className="text-lg font-bold capitalize"
+                style={{ color: "var(--color-emerald-400)" }}
+              >
+                {currentUser?.role?.name || "Not assigned"}
+              </p>
+            </div>
+
+            <div
+              className="p-6 rounded-xl"
+              style={{
+                backgroundColor: `color-mix(in srgb, var(--color-slate-700) 50%, transparent)`,
+                border: "1px solid var(--color-slate-700)",
+              }}
+            >
+              <p
+                className="text-xs font-bold uppercase tracking-widest mb-2"
+                style={{ color: "var(--color-slate-400)" }}
+              >
+                Current Status
+              </p>
+              <div className="flex items-center gap-2">
+                <div
+                  className="w-2 h-2 rounded-full"
+                  style={{
+                    backgroundColor:
+                      currentUser?.status === "present"
+                        ? "#10b981"
+                        : currentUser?.status === "on-leave"
+                        ? "#3b82f6"
+                        : "#ef4444",
+                  }}
+                />
+                <p
+                  className="text-lg font-bold capitalize"
+                  style={{
+                    color:
+                      currentUser?.status === "present"
+                        ? "#10b981"
+                        : currentUser?.status === "on-leave"
+                        ? "#3b82f6"
+                        : "#ef4444",
+                  }}
+                >
+                  {statusText[currentUser?.status || ""] ||
+                    currentUser?.status ||
+                    "Absent"}
+                </p>
+              </div>
+            </div>
+
+            <div
+              className="p-6 rounded-xl"
+              style={{
+                backgroundColor: `color-mix(in srgb, var(--color-slate-700) 50%, transparent)`,
+                border: "1px solid var(--color-slate-700)",
+              }}
+            >
+              <p
+                className="text-xs font-bold uppercase tracking-widest mb-2"
+                style={{ color: "var(--color-slate-400)" }}
+              >
+                Join Date
+              </p>
+              <p
+                className="text-lg font-bold"
+                style={{ color: "var(--color-slate-300)" }}
+              >
+                {currentUser?.dateJoined
+                  ? new Date(currentUser.dateJoined).toLocaleDateString(
+                      "en-US",
+                      {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      }
+                    )
+                  : "Not set"}
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

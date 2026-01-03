@@ -1,10 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 
 interface LeaveRequest {
   id: string;
@@ -78,42 +75,28 @@ export default function AdminLeaveDashboard() {
   );
 
   return (
-    <div className="space-y-6 container mx-auto p-6 max-w-7xl animate-in fade-in duration-500">
-      <div
-        className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 rounded-xl"
-        style={{
-          background:
-            "linear-gradient(135deg, var(--color-slate-900), var(--color-slate-800))",
-        }}
-      >
+    <div className="min-h-screen text-foreground">
+      <div className="home-bg"></div>
+
+      {/* Header & Controls */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-8">
         <div>
-          <h1
-            className="text-3xl font-bold tracking-tight"
-            style={{ color: "var(--color-white)" }}
-          >
-            Leave Management
-          </h1>
-          <p className="mt-1" style={{ color: "var(--color-slate-400)" }}>
-            Review and approve employee leave requests.
-          </p>
+          <h1 className="text-3xl font-bold" style={{ color: "var(--foreground)" }}>Leave Management</h1>
+          <p style={{ color: "var(--muted-foreground)" }}>Review and approve employee leave requests.</p>
         </div>
         <div className="flex items-center gap-2">
-          <Input
+          <input
+            type="text"
             placeholder="Search by name or ID..."
-            className="w-62.5"
-            style={{
-              backgroundColor:
-                "color-mix(in srgb, var(--color-slate-800) 50%, transparent)",
-              color: "var(--color-white)",
-              borderColor: "var(--color-slate-700)",
-            }}
+            className="w-64 bg-card border border-border rounded-xl px-4 py-2 text-foreground focus:outline-none focus:border-primary transition-colors"
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
           />
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-8">
         <StatCard
           title="Total Pending"
           count={leaves.filter((l) => l.status === "PENDING").length}
@@ -131,102 +114,47 @@ export default function AdminLeaveDashboard() {
         />
       </div>
 
-      <Card
-        className="border-none shadow-xl"
-        style={{
-          backgroundColor: "var(--color-slate-900)",
-          borderColor: "var(--color-slate-700)",
-        }}
-      >
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr
-                  style={{
-                    backgroundColor:
-                      "color-mix(in srgb, var(--color-slate-800) 50%, transparent)",
-                    borderColor: "var(--color-slate-700)",
-                  }}
-                  className="border-b"
-                >
-                  <th
-                    className="p-4 font-semibold"
-                    style={{ color: "var(--color-slate-300)" }}
-                  >
-                    Employee
-                  </th>
-                  <th
-                    className="p-4 font-semibold"
-                    style={{ color: "var(--color-slate-300)" }}
-                  >
-                    Type
-                  </th>
-                  <th
-                    className="p-4 font-semibold"
-                    style={{ color: "var(--color-slate-300)" }}
-                  >
-                    Dates
-                  </th>
-                  <th
-                    className="p-4 font-semibold"
-                    style={{ color: "var(--color-slate-300)" }}
-                  >
-                    Reason
-                  </th>
-                  <th
-                    className="p-4 font-semibold"
-                    style={{ color: "var(--color-slate-300)" }}
-                  >
-                    Status
-                  </th>
-                  <th
-                    className="p-4 font-semibold text-right"
-                    style={{ color: "var(--color-slate-300)" }}
-                  >
-                    Actions
-                  </th>
+      {/* Main Content */}
+      <div className="card-gradient rounded-3xl border border-border/50 overflow-hidden backdrop-blur-sm mx-8 mb-8 mt-8">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="border-b border-border bg-card/50">
+                <th className="p-6 text-xs font-bold uppercase tracking-wider" style={{ color: "var(--muted-foreground)" }}>Employee</th>
+                <th className="p-6 text-xs font-bold uppercase tracking-wider" style={{ color: "var(--muted-foreground)" }}>Type</th>
+                <th className="p-6 text-xs font-bold uppercase tracking-wider" style={{ color: "var(--muted-foreground)" }}>Dates</th>
+                <th className="p-6 text-xs font-bold uppercase tracking-wider" style={{ color: "var(--muted-foreground)" }}>Reason</th>
+                <th className="p-6 text-xs font-bold uppercase tracking-wider" style={{ color: "var(--muted-foreground)" }}>Status</th>
+                <th className="p-6 text-xs font-bold uppercase tracking-wider text-right" style={{ color: "var(--muted-foreground)" }}>Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {loading ? (
+                <tr>
+                  <td colSpan={6} className="p-8 text-center" style={{ color: "var(--muted-foreground)" }}>
+                    Loading requests...
+                  </td>
                 </tr>
-              </thead>
-              <tbody
-                className="divide-y"
-                style={{ borderColor: "var(--color-slate-800)" }}
-              >
-                {loading ? (
-                  <tr>
-                    <td
-                      colSpan={6}
-                      className="p-8 text-center"
-                      style={{ color: "var(--color-slate-400)" }}
-                    >
-                      Loading requests...
-                    </td>
-                  </tr>
-                ) : filteredLeaves.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan={6}
-                      className="p-8 text-center"
-                      style={{ color: "var(--color-slate-400)" }}
-                    >
-                      No leave requests found.
-                    </td>
-                  </tr>
-                ) : (
-                  filteredLeaves.map((leave) => (
-                    <LeaveRow
-                      key={leave.id}
-                      leave={leave}
-                      onAction={handleAction}
-                      isProcessing={processingId === leave.id}
-                    />
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
+              ) : filteredLeaves.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="p-8 text-center" style={{ color: "var(--muted-foreground)" }}>
+                    No leave requests found.
+                  </td>
+                </tr>
+              ) : (
+                filteredLeaves.map((leave) => (
+                  <LeaveRow
+                    key={leave.id}
+                    leave={leave}
+                    onAction={handleAction}
+                    isProcessing={processingId === leave.id}
+                  />
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }
@@ -258,36 +186,22 @@ function StatCard({
   };
 
   return (
-    <Card
-      className="border-none shadow-lg"
-      style={{
-        backgroundColor: "var(--color-slate-900)",
-        borderColor: "var(--color-slate-700)",
-      }}
-    >
-      <CardContent className="p-6">
-        <div className="flex items-center justify-between">
-          <p
-            className="text-sm font-medium uppercase"
-            style={{ color: "var(--color-slate-400)" }}
-          >
-            {title}
-          </p>
-          <span
-            className="px-2.5 py-0.5 rounded-full text-xs font-bold"
-            style={badgeStyles[color]}
-          >
-            {count}
-          </span>
-        </div>
-        <p
-          className="text-3xl font-bold mt-2"
-          style={{ color: "var(--color-white)" }}
+    <div className="p-6 rounded-3xl card-gradient border border-border/50">
+      <div className="flex items-center justify-between">
+        <p className="text-sm font-medium uppercase tracking-wider" style={{ color: "var(--muted-foreground)" }}>
+          {title}
+        </p>
+        <span
+          className="px-2.5 py-0.5 rounded-full text-xs font-bold"
+          style={badgeStyles[color]}
         >
           {count}
-        </p>
-      </CardContent>
-    </Card>
+        </span>
+      </div>
+      <p className="text-3xl font-bold mt-2" style={{ color: "var(--foreground)" }}>
+        {count}
+      </p>
+    </div>
   );
 }
 
@@ -308,27 +222,18 @@ function LeaveRow({
   const [showComment, setShowComment] = useState(false);
 
   return (
-    <tr
-      className="transition-colors group"
-      onMouseEnter={(e) =>
-      (e.currentTarget.style.backgroundColor =
-        "color-mix(in srgb, var(--color-slate-800) 30%, transparent)")
-      }
-      onMouseLeave={(e) =>
-        (e.currentTarget.style.backgroundColor = "transparent")
-      }
-    >
-      <td className="p-4">
+    <tr className="hover:bg-card/20 transition-colors group">
+      <td className="p-6">
         <div>
-          <p className="font-semibold" style={{ color: "var(--color-white)" }}>
+          <p className="font-semibold group-hover:text-primary transition-colors" style={{ color: "var(--foreground)" }}>
             {leave.user.name}
           </p>
-          <p className="text-xs" style={{ color: "var(--color-slate-400)" }}>
+          <p className="text-xs" style={{ color: "var(--muted-foreground)" }}>
             {leave.user.loginId} • {leave.user.email}
           </p>
         </div>
       </td>
-      <td className="p-4">
+      <td className="p-6">
         <span
           className="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ring-1 ring-inset"
           style={{
@@ -342,29 +247,29 @@ function LeaveRow({
           {leave.type}
         </span>
       </td>
-      <td className="p-4">
+      <td className="p-6">
         <div className="text-sm">
-          <p style={{ color: "var(--color-white)" }}>
+          <p style={{ color: "var(--foreground)" }}>
             {new Date(leave.startDate).toLocaleDateString()}
           </p>
-          <p className="text-xs" style={{ color: "var(--color-slate-400)" }}>
+          <p className="text-xs" style={{ color: "var(--muted-foreground)" }}>
             to {new Date(leave.endDate).toLocaleDateString()}
           </p>
         </div>
       </td>
-      <td className="p-4">
+      <td className="p-6">
         <p
           className="text-sm max-w-50 truncate"
-          style={{ color: "var(--color-slate-400)" }}
+          style={{ color: "var(--muted-foreground)" }}
           title={leave.reason}
         >
           {leave.reason}
         </p>
       </td>
-      <td className="p-4">
+      <td className="p-6">
         <StatusBadge status={leave.status} />
       </td>
-      <td className="p-4 text-right">
+      <td className="p-6 text-right">
         {leave.status === "PENDING" ? (
           <div className="flex flex-col items-end gap-2">
             {!showComment ? (
@@ -380,9 +285,10 @@ function LeaveRow({
               </div>
             ) : (
               <div className="flex flex-col gap-2 w-full max-w-50 animate-in slide-in-from-right-2 duration-200">
-                <Input
+                <input
+                  type="text"
                   placeholder="Admin comment..."
-                  className="h-8 text-xs"
+                  className="h-8 text-xs bg-card border border-border rounded px-2 text-foreground focus:outline-none focus:border-primary"
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
                 />
@@ -391,7 +297,7 @@ function LeaveRow({
                     size="sm"
                     variant="ghost"
                     className="h-7 px-2 text-xs"
-                    style={{ color: "var(--color-slate-400)" }}
+                    style={{ color: "var(--muted-foreground)" }}
                     onClick={() => setShowComment(false)}
                   >
                     Cancel
@@ -400,10 +306,6 @@ function LeaveRow({
                     size="sm"
                     variant="destructive"
                     className="h-7 px-2 text-xs"
-                    style={{
-                      backgroundColor: "var(--color-red-500)",
-                      color: "var(--color-white)",
-                    }}
                     onClick={() => onAction(leave.id, "REJECTED", comment)}
                     disabled={isProcessing}
                   >
@@ -411,12 +313,7 @@ function LeaveRow({
                   </Button>
                   <Button
                     size="sm"
-                    className="h-7 px-2 text-xs"
-                    style={{
-                      background:
-                        "linear-gradient(135deg, var(--color-emerald-600), var(--color-teal-500))",
-                      color: "var(--color-white)",
-                    }}
+                    className="h-7 px-2 text-xs bg-primary hover:bg-primary/90 text-primary-foreground"
                     onClick={() => onAction(leave.id, "APPROVED", comment)}
                     disabled={isProcessing}
                   >
@@ -427,10 +324,7 @@ function LeaveRow({
             )}
           </div>
         ) : (
-          <div
-            className="text-xs italic"
-            style={{ color: "var(--color-slate-400)" }}
-          >
+          <div className="text-xs italic" style={{ color: "var(--muted-foreground)" }}>
             {leave.adminComment || "No comment"}
           </div>
         )}

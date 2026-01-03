@@ -267,32 +267,33 @@ export default function Home() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {features.map((feature, index) => (
-            <div
-              key={index}
-              className="brutal-card p-8 group hover:-translate-y-2"
-            >
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {features.map((feature, index) => (
               <div
-                className="w-16 h-16 flex items-center justify-center mb-6 border-2 border-slate-700 bg-slate-800 group-hover:bg-primary group-hover:border-primary transition-colors duration-300 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.5)]"
+                key={index}
+                className="brutal-card p-8 group hover:-translate-y-2"
               >
-                <feature.icon
-                  className="w-8 h-8 text-primary group-hover:text-slate-900 transition-colors duration-300"
-                />
+                <div
+                  className="w-16 h-16 flex items-center justify-center mb-6 border-2 border-slate-700 bg-slate-800 group-hover:bg-primary group-hover:border-primary transition-colors duration-300 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.5)]"
+                >
+                  <feature.icon
+                    className="w-8 h-8 text-primary group-hover:text-slate-900 transition-colors duration-300"
+                  />
+                </div>
+                <h4
+                  className="text-xl font-black mb-4 uppercase tracking-wide"
+                  style={{ color: "var(--foreground)" }}
+                >
+                  {feature.title}
+                </h4>
+                <p
+                  className="leading-relaxed text-slate-400 font-medium"
+                >
+                  {feature.description}
+                </p>
               </div>
-              <h4
-                className="text-xl font-black mb-4 uppercase tracking-wide"
-                style={{ color: "var(--foreground)" }}
-              >
-                {feature.title}
-              </h4>
-              <p
-                className="leading-relaxed text-slate-400 font-medium"
-              >
-                {feature.description}
-              </p>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
       </section>
 
       {/* Stats Section */}

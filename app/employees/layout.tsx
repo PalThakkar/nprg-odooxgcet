@@ -16,11 +16,11 @@ export default function DashboardLayout({
     { label: "Dashboard", href: "/employees" },
     { label: "Attendance", href: "/employees/attendance" },
     { label: "Time Off", href: "/employees/time-off" },
-    ...(user?.role === "admin"
+    ...(user?.role?.toLowerCase() === "admin"
       ? [
-          { label: "Employees", href: "/admin/employees" },
-          { label: "Leave Approval", href: "/admin/leaves" },
-        ]
+        { label: "Employees", href: "/admin/employees" },
+        { label: "Leave Approval", href: "/admin/leaves" },
+      ]
       : []),
   ];
 
@@ -98,7 +98,7 @@ export default function DashboardLayout({
                 className="text-[10px] truncate"
                 style={{ color: "var(--color-slate-500)" }}
               >
-                {user?.employeeId || "USER-001"}
+                {user?.role?.toLowerCase() === "admin" ? "Administrator" : user?.employeeId || "USER-001"}
               </p>
             </div>
           </div>
