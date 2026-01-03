@@ -129,7 +129,9 @@ export async function GET() {
         role: { name: 'user' }
       },
       include: {
-        role: true
+        role: true,
+        salaryInfo: true,
+        privateInfo: true,
       },
       orderBy: { createdAt: 'desc' }
     });

@@ -169,6 +169,7 @@ export default function AdminEmployeesPage() {
                 <EmployeeDetailTile
                     employee={selectedEmployee}
                     onClose={() => setSelectedEmployee(null)}
+                    viewerRole="admin"
                 />
             )}
         </div>

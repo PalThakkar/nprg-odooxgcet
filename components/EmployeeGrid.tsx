@@ -12,14 +12,14 @@ interface Employee {
     loginId: string | null;
     status: string;
     avatarUrl: string | null;
-    email?: string;
-    phone?: string;
+    email?: string | null;
+    phone?: string | null;
     role: {
         name: string;
     };
 }
 
-export default function EmployeeGrid({ initialEmployees }: { initialEmployees: Employee[] }) {
+export default function EmployeeGrid({ initialEmployees, viewerRole }: { initialEmployees: Employee[], viewerRole?: string | null }) {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
 
@@ -96,6 +96,7 @@ export default function EmployeeGrid({ initialEmployees }: { initialEmployees: E
                 <EmployeeDetailTile
                     employee={selectedEmployee}
                     onClose={() => setSelectedEmployee(null)}
+                    viewerRole={viewerRole}
                 />
             )}
         </div>
