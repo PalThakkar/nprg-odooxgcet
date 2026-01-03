@@ -16,22 +16,7 @@ import {
 import Link from "next/link";
 
 export default function Home() {
-  const { isAuthenticated, isLoading, isAdmin } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!isLoading) {
-      if (isAuthenticated) {
-        if (isAdmin) {
-          router.push('/admin/employees');
-        } else {
-          router.push('/employees');
-        }
-      } else {
-        router.push('/auth/login');
-      }
-    }
-  }, [isAuthenticated, isLoading, router, isAdmin]);
+  const { isAuthenticated, isLoading, user } = useAuth();
 
   if (isLoading) {
     return (

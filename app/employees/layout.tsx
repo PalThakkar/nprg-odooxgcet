@@ -2,20 +2,14 @@
 
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
-import { useRouter } from "next/navigation";
+import LogoutButton from "@/components/LogoutButton";
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { user, logout } = useAuth();
-  const router = useRouter();
-
-  const handleLogout = () => {
-    logout();
-    router.push("/");
-  };
+  const { user } = useAuth();
 
   const navItems = [
     { label: "Dashboard", href: "/employees" },
@@ -119,13 +113,7 @@ export default function DashboardLayout({
             </span>
           </div>
           <div className="ml-auto flex items-center gap-4">
-            <button
-              onClick={handleLogout}
-              className="text-sm font-medium transition-colors hover:opacity-80"
-              style={{ color: "var(--color-slate-400)" }}
-            >
-              Logout
-            </button>
+            <LogoutButton />
           </div>
         </header>
         <div className="p-0">{children}</div>

@@ -1,5 +1,7 @@
-import { headers } from "next/headers";
+"use client";
+
 import Link from "next/link";
+import { useAuth } from "@/contexts/AuthContext";
 import LogoutButton from "@/components/LogoutButton";
 
 export default function DashboardLayout({
@@ -7,22 +9,12 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { user, logout } = useAuth();
-  const router = useRouter();
-
-  const handleLogout = () => {
-    logout();
-    router.push("/");
-  };
+  const { user } = useAuth();
 
   const navItems = [
     { label: "Dashboard", href: "/admin/employees" },
-    ...(userRole?.toLowerCase() === "admin"
-      ? [
-        { label: "Employees", href: "/admin/employees" },
-        { label: "Leave Approval", href: "/admin/leaves" },
-      ]
-      : []),
+    { label: "Employees", href: "/admin/employees" },
+    { label: "Leave Approval", href: "/admin/leaves" },
   ];
 
   return (
