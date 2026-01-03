@@ -10,7 +10,7 @@ interface Employee {
     id: string;
     name: string | null;
     loginId: string | null;
-    status: string;
+    status: string | null;
     avatarUrl?: string | null;
     email?: string | null;
     phone?: string | null;
@@ -86,7 +86,7 @@ export default function EmployeeGrid({
                         name={employee.name || employee.loginId || "Unknown"}
                         role={employee.role?.name || "Employee"}
                         avatarUrl={employee.avatarUrl || undefined}
-                        status={employee.status as any}
+                        status={(employee.status || "absent") as any}
                         onClick={() => setSelectedEmployee(employee)}
                     />
                 ))}

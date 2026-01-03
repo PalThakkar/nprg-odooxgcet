@@ -33,7 +33,7 @@ export default function AttendancePage() {
 
   const fetchAttendance = async () => {
     try {
-      const data = await apiClient.getTodayAttendance();
+      const data = (await apiClient.getTodayAttendance()) as any;
       setAttendance(data.attendance as AttendanceData);
     } catch (error: any) {
       console.error('Failed to fetch attendance:', error);
@@ -76,19 +76,19 @@ export default function AttendancePage() {
   };
 
   const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('en-US', { 
-      hour: '2-digit', 
-      minute: '2-digit', 
-      second: '2-digit' 
+    return date.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
     });
   };
 
   const formatDate = (date: Date) => {
-    return date.toLocaleDateString('en-US', { 
-      weekday: 'long', 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
+    return date.toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
     });
   };
 
@@ -144,7 +144,7 @@ export default function AttendancePage() {
             <div className="text-lg text-gray-600 mb-6">
               {formatDate(currentTime)}
             </div>
-            
+
             <div className="flex items-center justify-center space-x-2 mb-6">
               <User className="h-5 w-5 text-gray-500" />
               <span className="text-gray-700">{user?.name}</span>
@@ -203,7 +203,7 @@ export default function AttendancePage() {
                   <span>{actionLoading ? 'Checking in...' : 'Check In'}</span>
                 </button>
               )}
-              
+
               {isCheckedIn && (
                 <button
                   onClick={handleCheckOut}
@@ -214,7 +214,7 @@ export default function AttendancePage() {
                   <span>{actionLoading ? 'Checking out...' : 'Check Out'}</span>
                 </button>
               )}
-              
+
               {isCheckedOut && (
                 <div className="text-gray-500">
                   <p className="font-medium">Attendance completed for today</p>
@@ -225,11 +225,10 @@ export default function AttendancePage() {
 
             {/* Message */}
             {message && (
-              <div className={`mt-4 p-3 rounded-lg ${
-                message.includes('Successfully') 
-                  ? 'bg-green-100 text-green-700' 
-                  : 'bg-red-100 text-red-700'
-              }`}>
+              <div className={`mt-4 p-3 rounded-lg ${message.includes('Successfully')
+                ? 'bg-green-100 text-green-700'
+                : 'bg-red-100 text-red-700'
+                }`}>
                 {message}
               </div>
             )}
@@ -245,13 +244,13 @@ export default function AttendancePage() {
             </div>
             <p className="text-gray-600 mb-4">View your attendance records and summaries</p>
             <a
-              href="/attendance/history"
+              href="/employees/attendance"
               className="inline-flex items-center text-blue-600 hover:text-blue-700"
             >
               View History →
             </a>
           </div>
-          
+
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex items-center mb-4">
               <Clock className="h-6 w-6 text-green-600 mr-2" />
@@ -259,7 +258,7 @@ export default function AttendancePage() {
             </div>
             <p className="text-gray-600 mb-4">Apply for leave or check your leave balance</p>
             <a
-              href="/leave"
+              href="/employees/time-off"
               className="inline-flex items-center text-green-600 hover:text-green-700"
             >
               Manage Leave →
