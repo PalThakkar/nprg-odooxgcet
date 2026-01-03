@@ -71,6 +71,26 @@ export async function POST(req: Request) {
           roleId: userRoleRecord.id,
           status: 'absent',
           isFirstLogin: true,
+          salaryInfo: {
+            create: {
+              monthlyWage: 0,
+              yearlyWage: 0,
+              basic: 0,
+              hra: 0,
+              standardAllowance: 0,
+              performanceBonus: 0,
+              lta: 0,
+              fixedAllowance: 0,
+              pfEmployee: 0,
+              pfEmployer: 0,
+              professionalTax: 200
+            }
+          },
+          privateInfo: {
+            create: {
+              empCode: loginId
+            }
+          }
         },
         select: {
           id: true,
@@ -120,12 +140,12 @@ export async function GET() {
     const userRole = headersList.get('x-user-role');
 
     if (!adminId || userRole !== 'admin' || !companyId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+      return NextResponse.json({ error: 'Unauthorized', debug: { adminId, companyId, userRole } }, { status: 403 });
     }
 
     const employees = await prisma.user.findMany({
       where: {
-        companyId,
+        companyId: companyId,
         role: { name: 'user' }
       },
       include: {
@@ -138,6 +158,7 @@ export async function GET() {
 
     return NextResponse.json({ employees });
   } catch (error: any) {
+    console.error('GET Employees Error:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

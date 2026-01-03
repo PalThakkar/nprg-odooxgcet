@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { X, Mail, Phone, Briefcase, Calendar, Shield, MapPin, Globe, CreditCard, User, Wallet, Lock } from 'lucide-react';
+import { X, Mail, Phone, Briefcase, Calendar, Shield, MapPin, Globe, CreditCard, User, Wallet, Lock, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import SalaryInfoView from './admin/SalaryInfoView';
@@ -17,9 +17,60 @@ type Tab = 'basic' | 'private' | 'salary' | 'security';
 
 export default function EmployeeDetailTile({ employee, onClose, viewerRole = 'user' }: EmployeeDetailTileProps) {
     const [activeTab, setActiveTab] = useState<Tab>('basic');
+    const [isLoading, setIsLoading] = useState(false);
+    const [announcement, setAnnouncement] = useState('');
+    const [showAnnounceInput, setShowAnnounceInput] = useState(false);
+    const [statusMsg, setStatusMsg] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+
     if (!employee) return null;
 
     const isAdmin = viewerRole === 'admin';
+
+    const handleResetPassword = async () => {
+        if (!confirm('Are you sure you want to reset this password? A new one will be generated and emailed.')) return;
+        setIsLoading(true);
+        setStatusMsg(null);
+        try {
+            const res = await fetch(`/api/admin/employees/${employee.id}/reset-password`, { method: 'POST' });
+            const data = await res.json();
+            if (res.ok) {
+                setStatusMsg({ type: 'success', text: `Success! New password: ${data.tempPassword}` });
+            } else {
+                throw new Error(data.error);
+            }
+        } catch (err: any) {
+            setStatusMsg({ type: 'error', text: err.message });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleAnnounce = async () => {
+        if (!announcement.trim()) return;
+        setIsLoading(true);
+        setStatusMsg(null);
+        try {
+            const res = await fetch(`/api/admin/employees/${employee.id}/announce`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message: announcement, title: 'Personal Announcement' })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                setStatusMsg({ type: 'success', text: 'Announcement posted to dashboard' });
+                setAnnouncement('');
+                setShowAnnounceInput(false);
+            } else {
+                throw new Error(data.error);
+            }
+        } catch (err: any) {
+            setStatusMsg({ type: 'error', text: err.message });
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     const tabs = [
         { id: 'basic', label: 'Basic Info', icon: User },
@@ -91,6 +142,17 @@ export default function EmployeeDetailTile({ employee, onClose, viewerRole = 'us
                             </div>
                         </div>
 
+                        {/* Status Message Overlay */}
+                        {statusMsg && (
+                            <div className={cn(
+                                "mb-6 p-4 rounded-2xl font-bold text-sm flex items-center justify-between animate-in slide-in-from-top-4 duration-300",
+                                statusMsg.type === 'success' ? "bg-emerald-50 text-emerald-700 border border-emerald-100" : "bg-rose-50 text-rose-700 border border-rose-100"
+                            )}>
+                                <span>{statusMsg.text}</span>
+                                <button onClick={() => setStatusMsg(null)} className="opacity-50 hover:opacity-100"><X className="w-4 h-4" /></button>
+                            </div>
+                        )}
+
                         {/* Navigation Tabs */}
                         <div className="flex gap-2 bg-white/50 p-1.5 rounded-[2rem] border border-gray-100 mb-10 overflow-x-auto scrollbar-hide">
                             {tabs.map((tab) => {
@@ -99,7 +161,7 @@ export default function EmployeeDetailTile({ employee, onClose, viewerRole = 'us
                                 return (
                                     <button
                                         key={tab.id}
-                                        onClick={() => setActiveTab(tab.id as Tab)}
+                                        onClick={() => { setActiveTab(tab.id as Tab); setStatusMsg(null); }}
                                         className={cn(
                                             "flex items-center gap-2.5 px-6 py-3.5 rounded-2xl text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap",
                                             isActive
@@ -117,13 +179,48 @@ export default function EmployeeDetailTile({ employee, onClose, viewerRole = 'us
                         {/* Tab Content */}
                         <div className="min-h-[400px]">
                             {activeTab === 'basic' && (
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                    <DetailItem icon={Mail} label="Email Address" value={employee.email || 'N/A'} />
-                                    <DetailItem icon={Phone} label="Phone Number" value={employee.phone || 'N/A'} />
-                                    <DetailItem icon={Briefcase} label="Department" value="Operations" />
-                                    <DetailItem icon={Calendar} label="Joining Date" value="Jan 12, 2024" />
-                                    <DetailItem icon={MapPin} label="Location" value="Ahmedabad, India" />
-                                    <DetailItem icon={Globe} label="Timezone" value="IST (GMT+5:30)" />
+                                <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <DetailItem icon={Mail} label="Email Address" value={employee.email || 'N/A'} />
+                                        <DetailItem icon={Phone} label="Phone Number" value={employee.phone || 'N/A'} />
+                                        <DetailItem icon={Briefcase} label="Department" value="Operations" />
+                                        <DetailItem icon={Calendar} label="Joining Date" value="Jan 12, 2024" />
+                                        <DetailItem icon={MapPin} label="Location" value="Ahmedabad, India" />
+                                        <DetailItem icon={Globe} label="Timezone" value="IST (GMT+5:30)" />
+                                    </div>
+
+                                    {isAdmin && (
+                                        <div className="space-y-4">
+                                            {showAnnounceInput ? (
+                                                <div className="bg-white border border-indigo-100 p-6 rounded-[2.5rem] shadow-xl shadow-indigo-50/50 animate-in zoom-in-95 duration-300">
+                                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-4">Post Personalized Announcement</label>
+                                                    <textarea
+                                                        value={announcement}
+                                                        onChange={(e) => setAnnouncement(e.target.value)}
+                                                        placeholder="Type a message for this employee's dashboard..."
+                                                        className="w-full bg-gray-50 border-none rounded-2xl p-4 text-sm font-bold text-gray-900 h-32 focus:ring-4 focus:ring-indigo-50 transition-all resize-none"
+                                                    />
+                                                    <div className="flex gap-2 mt-4">
+                                                        <Button onClick={handleAnnounce} disabled={isLoading || !announcement.trim()} className="flex-1 bg-indigo-600 hover:bg-indigo-700 h-12 rounded-xl font-black transition-all active:scale-95">
+                                                            {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Post Announcement"}
+                                                        </Button>
+                                                        <Button variant="ghost" onClick={() => setShowAnnounceInput(false)} className="px-6 h-12 rounded-xl font-bold text-gray-400">Cancel</Button>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="flex flex-wrap gap-4">
+                                                    <Button onClick={() => setShowAnnounceInput(true)} className="flex-1 bg-indigo-600 hover:bg-indigo-700 h-16 rounded-[1.5rem] text-base font-black shadow-xl shadow-indigo-100 transition-all active:scale-[0.98]">
+                                                        <Mail className="w-5 h-5 mr-3" />
+                                                        Post Announcement
+                                                    </Button>
+                                                    <Button variant="outline" onClick={() => setActiveTab('salary')} className="flex-1 border-gray-100 h-16 rounded-[1.5rem] text-base font-black hover:bg-gray-50 hover:border-gray-200 transition-all active:scale-[0.98]">
+                                                        <Wallet className="w-5 h-5 mr-3 text-indigo-600" />
+                                                        Config Salary
+                                                    </Button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
                             )}
 
@@ -142,28 +239,21 @@ export default function EmployeeDetailTile({ employee, onClose, viewerRole = 'us
                                     </div>
                                     <h3 className="text-xl font-bold text-gray-900">Account Security</h3>
                                     <p className="text-gray-400 font-medium">Reset password and manage MFA settings for this member.</p>
-                                    <Button variant="outline" className="h-14 px-10 rounded-2xl font-black border-2 border-gray-100 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-100 transition-all">
+
+                                    <Button
+                                        variant="outline"
+                                        onClick={handleResetPassword}
+                                        disabled={isLoading}
+                                        className="h-14 px-10 rounded-2xl font-black border-2 border-gray-100 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-100 transition-all w-full"
+                                    >
+                                        {isLoading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : <Shield className="w-5 h-5 mr-2" />}
                                         Reset Access Password
                                     </Button>
+
+                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest pt-4">This action will be logged for security audits</p>
                                 </div>
                             )}
                         </div>
-
-                        {activeTab === 'basic' && (
-                            <>
-                                <div className="h-px bg-gray-100 my-12" />
-                                <div className="flex flex-wrap gap-4">
-                                    <Button className="flex-1 bg-indigo-600 hover:bg-indigo-700 h-16 rounded-[1.5rem] text-base font-black shadow-xl shadow-indigo-100 transition-all active:scale-[0.98]">
-                                        <Mail className="w-5 h-5 mr-3" />
-                                        Post Announcement
-                                    </Button>
-                                    <Button variant="outline" onClick={() => setActiveTab('salary')} className="flex-1 border-gray-100 h-16 rounded-[1.5rem] text-base font-black hover:bg-gray-50 hover:border-gray-200 transition-all active:scale-[0.98]">
-                                        <Wallet className="w-5 h-5 mr-3 text-indigo-600" />
-                                        View Salary Info
-                                    </Button>
-                                </div>
-                            </>
-                        )}
                     </div>
                 </div>
             </div>
