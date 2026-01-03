@@ -22,7 +22,6 @@ model User {
 
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-  status       String?  @default("absent")
   company      Company? @relation(fields: [companyId], references: [id])
 
   data          AppData[]
@@ -34,7 +33,6 @@ model User {
 
   privateInfo   PrivateInfo?
   notifications Notification[]
-
 
   @@map("users")
 }

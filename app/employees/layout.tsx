@@ -1,23 +1,26 @@
-import { headers } from "next/headers";
-import Link from "next/link";
+"use client";
 
-export default async function DashboardLayout({
+import Link from "next/link";
+import { useAuth } from "@/contexts/AuthContext";
+import { useRouter } from "next/navigation";
+
+export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const headerList = await headers();
-  const userRole = headerList.get("x-user-role");
-  const loginId = headerList.get("x-user-login-id");
+  const { user, logout } = useAuth();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    logout();
+    router.push("/");
+  };
 
   const navItems = [
     { label: "Dashboard", href: "/employees" },
-    ...(userRole === "admin"
-      ? [
-        { label: "Employees", href: "/admin/employees" },
-        { label: "Leave Approval", href: "/admin/leaves" },
-      ]
-      : []),
+    { label: "Attendance", href: "/employees/attendance" },
+    { label: "Time Off", href: "/employees/time-off" },
   ];
 
   return (
@@ -81,20 +84,20 @@ export default async function DashboardLayout({
                 color: "var(--color-teal-500)",
               }}
             >
-              {userRole?.substring(0, 1)}
+              {user?.role?.substring(0, 1).toUpperCase() || "E"}
             </div>
             <div className="overflow-hidden">
               <p
                 className="text-xs font-bold truncate"
                 style={{ color: "var(--color-slate-300)" }}
               >
-                Admin User
+                {user?.name || "Employee"}
               </p>
               <p
                 className="text-[10px] truncate"
                 style={{ color: "var(--color-slate-500)" }}
               >
-                {loginId || "USER-001"}
+                {user?.employeeId || "USER-001"}
               </p>
             </div>
           </div>
@@ -117,7 +120,8 @@ export default async function DashboardLayout({
           </div>
           <div className="ml-auto flex items-center gap-4">
             <button
-              className="text-sm font-medium transition-colors"
+              onClick={handleLogout}
+              className="text-sm font-medium transition-colors hover:opacity-80"
               style={{ color: "var(--color-slate-400)" }}
             >
               Logout
