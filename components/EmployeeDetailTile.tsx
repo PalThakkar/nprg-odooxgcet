@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import React, { useState } from 'react';
 import { X, Mail, Phone, Briefcase, Calendar, Shield, MapPin, Globe, CreditCard, User, Wallet, Lock, Loader2 } from 'lucide-react';
@@ -8,12 +8,12 @@ import SalaryInfoView from './admin/SalaryInfoView';
 import PrivateInfoView from './admin/PrivateInfoView';
 
 interface EmployeeDetailTileProps {
-    employee: any;
-    onClose: () => void;
-    viewerRole?: string | null;
+  employee: any;
+  onClose: () => void;
+  viewerRole?: string | null;
 }
 
-type Tab = 'basic' | 'private' | 'salary' | 'security';
+type Tab = "basic" | "private" | "salary" | "security";
 
 export default function EmployeeDetailTile({ employee, onClose, viewerRole = 'user' }: EmployeeDetailTileProps) {
     const [activeTab, setActiveTab] = useState<Tab>('basic');
@@ -72,53 +72,83 @@ export default function EmployeeDetailTile({ employee, onClose, viewerRole = 'us
         }
     };
 
-    const tabs = [
-        { id: 'basic', label: 'Basic Info', icon: User },
-        { id: 'private', label: 'Private Info', icon: Lock },
-        ...(isAdmin ? [{ id: 'salary', label: 'Salary Info', icon: Wallet }] : []),
-        { id: 'security', label: 'Security', icon: Shield },
-    ];
+  const tabs = [
+    { id: "basic", label: "Basic Info", icon: User },
+    { id: "private", label: "Private Info", icon: Lock },
+    ...(isAdmin ? [{ id: "salary", label: "Salary Info", icon: Wallet }] : []),
+    { id: "security", label: "Security", icon: Shield },
+  ];
 
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300">
-            {/* Backdrop */}
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/40 backdrop-blur-xs"
+        onClick={onClose}
+      />
+
+      {/* Tile */}
+      <div
+        className="relative w-full max-w-4xl rounded-[3.5rem] shadow-[0_32px_128px_-16px_rgba(0,0,0,0.3)] overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-20 duration-500 max-h-[90vh] flex flex-col"
+        style={{ backgroundColor: "var(--color-slate-900)" }}
+      >
+        {/* Scrollable Content Area */}
+        <div className="flex-1 overflow-y-auto custom-scrollbar">
+          {/* Header/Banner */}
+          <div
+            className="h-40 relative overflow-hidden shrink-0"
+            style={{
+              background: `linear-gradient(to bottom right, var(--color-teal-600), var(--color-emerald-600))`,
+            }}
+          >
             <div
-                className="absolute inset-0 bg-black/40 backdrop-blur-[4px]"
-                onClick={onClose}
+              className="absolute top-0 right-0 w-64 h-64 rounded-full -mr-20 -mt-20 blur-3xl animate-pulse"
+              style={{ backgroundColor: "rgba(255, 255, 255, 0.1)" }}
             />
+            <button
+              onClick={onClose}
+              className="absolute top-8 right-8 p-3 rounded-full transition-all active:scale-95 z-10 backdrop-blur-md"
+              style={{
+                backgroundColor: "rgba(255, 255, 255, 0.1)",
+                color: "var(--color-white)",
+              }}
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
 
-            {/* Tile */}
-            <div className="relative w-full max-w-4xl bg-[#FBFBFF] rounded-[3.5rem] shadow-[0_32px_128px_-16px_rgba(0,0,0,0.3)] overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-20 duration-500 max-h-[90vh] flex flex-col">
-
-                {/* Scrollable Content Area */}
-                <div className="flex-1 overflow-y-auto custom-scrollbar">
-                    {/* Header/Banner */}
-                    <div className="h-40 bg-indigo-600 relative overflow-hidden shrink-0">
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl animate-pulse" />
-                        <button
-                            onClick={onClose}
-                            className="absolute top-8 right-8 p-3 bg-white/10 hover:bg-white/20 rounded-full text-white transition-all active:scale-95 z-10 backdrop-blur-md"
-                        >
-                            <X className="w-5 h-5" />
-                        </button>
-                    </div>
-
-                    {/* Profile Section */}
-                    <div className="px-8 pb-10">
-                        <div className="flex flex-col md:flex-row md:items-end gap-8 mb-10 -mt-20 relative">
-                            <div className="relative">
-                                <div className="w-40 h-40 rounded-[3rem] bg-indigo-50 border-[12px] border-[#FBFBFF] shadow-2xl flex items-center justify-center text-indigo-700 font-black text-5xl overflow-hidden ring-1 ring-gray-100">
-                                    {employee.avatarUrl ? (
-                                        <img src={employee.avatarUrl} alt="" className="w-full h-full object-cover" />
-                                    ) : (
-                                        employee.name?.substring(0, 1).toUpperCase() || 'U'
-                                    )}
-                                </div>
-                                <div className={cn(
-                                    "absolute bottom-4 right-4 w-7 h-7 rounded-full border-4 border-[#FBFBFF] shadow-lg",
-                                    employee.status === 'present' ? 'bg-green-500' : 'bg-gray-300'
-                                )} />
-                            </div>
+          {/* Profile Section */}
+          <div className="px-8 pb-10">
+            <div className="flex flex-col md:flex-row md:items-end gap-8 mb-10 -mt-20 relative">
+              <div className="relative">
+                <div
+                  className="w-40 h-40 rounded-[3rem] border-12 shadow-2xl flex items-center justify-center font-black text-5xl overflow-hidden ring-1 ring-slate-700"
+                  style={{
+                    backgroundColor: `color-mix(in srgb, var(--color-teal-500) 10%, transparent)`,
+                    borderColor: "var(--color-slate-900)",
+                    color: "var(--color-teal-600)",
+                  }}
+                >
+                  {employee.avatarUrl ? (
+                    <img
+                      src={employee.avatarUrl}
+                      alt=""
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    employee.name?.substring(0, 1).toUpperCase() || "U"
+                  )}
+                </div>
+                <div
+                  className={cn(
+                    "absolute bottom-4 right-4 w-7 h-7 rounded-full border-4 shadow-lg",
+                    employee.status === "present"
+                      ? "bg-green-500"
+                      : "bg-gray-300"
+                  )}
+                  style={{ borderColor: "var(--color-slate-900)" }}
+                />
+              </div>
 
                             <div className="flex-1 pb-4">
                                 <div className="flex flex-wrap items-center gap-4 mb-2">
@@ -224,13 +254,13 @@ export default function EmployeeDetailTile({ employee, onClose, viewerRole = 'us
                                 </div>
                             )}
 
-                            {activeTab === 'salary' && (
-                                <SalaryInfoView employeeId={employee.id} isAdmin={isAdmin} />
-                            )}
+              {activeTab === "salary" && (
+                <SalaryInfoView employeeId={employee.id} isAdmin={isAdmin} />
+              )}
 
-                            {activeTab === 'private' && (
-                                <PrivateInfoView employee={employee} isAdmin={isAdmin} />
-                            )}
+              {activeTab === "private" && (
+                <PrivateInfoView employee={employee} isAdmin={isAdmin} />
+              )}
 
                             {activeTab === 'security' && (
                                 <div className="bg-white border border-gray-100 rounded-[2.5rem] p-12 text-center space-y-4 max-w-lg mx-auto mt-10">
@@ -261,16 +291,49 @@ export default function EmployeeDetailTile({ employee, onClose, viewerRole = 'us
     );
 }
 
-function DetailItem({ icon: Icon, label, value }: { icon: any, label: string, value: string }) {
-    return (
-        <div className="bg-white border border-gray-100 p-6 rounded-[2rem] group hover:border-indigo-200 hover:bg-indigo-50/20 transition-all cursor-default shadow-sm hover:shadow-md">
-            <div className="flex items-center gap-4 mb-3">
-                <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center group-hover:bg-white transition-colors">
-                    <Icon className="w-5 h-5 text-gray-400 group-hover:text-indigo-500 transition-colors" />
-                </div>
-                <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">{label}</span>
-            </div>
-            <p className="text-lg font-black text-gray-900 truncate tracking-tight">{value}</p>
+function DetailItem({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: any;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div
+      className="border p-6 rounded-[2rem] group transition-all cursor-default shadow-sm hover:shadow-md"
+      style={{
+        backgroundColor: "var(--color-slate-800)",
+        borderColor: "var(--color-slate-700)",
+      }}
+    >
+      <div className="flex items-center gap-4 mb-3">
+        <div
+          className="w-10 h-10 rounded-xl flex items-center justify-center transition-colors"
+          style={{
+            backgroundColor:
+              "color-mix(in srgb, var(--color-slate-700) 50%, transparent)",
+          }}
+        >
+          <Icon
+            className="w-5 h-5 transition-colors"
+            style={{ color: "var(--color-slate-400)" }}
+          />
         </div>
-    );
+        <span
+          className="text-[10px] font-black uppercase tracking-[0.2em]"
+          style={{ color: "var(--color-slate-400)" }}
+        >
+          {label}
+        </span>
+      </div>
+      <p
+        className="text-lg font-black truncate tracking-tight"
+        style={{ color: "var(--color-white)" }}
+      >
+        {value}
+      </p>
+    </div>
+  );
 }
