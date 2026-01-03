@@ -84,7 +84,7 @@ export default async function DashboardPage() {
                 </CardContent>
             </Card>
             <div className="pb-24">
-                <EmployeeGrid initialEmployees={employees} />
+                <EmployeeGrid initialEmployees={employees} viewerRole={userRole} />
                 <AttendanceTray />
             </div>
         </div>

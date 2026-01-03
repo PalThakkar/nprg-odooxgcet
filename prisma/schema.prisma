@@ -26,6 +26,7 @@ model User {
   salaryInfo    SalaryInfo?
   company       Company?       @relation(fields: [companyId], references: [id])
   role          Role           @relation(fields: [roleId], references: [id])
+  privateInfo   PrivateInfo?
 
   @@map("users")
 }
@@ -114,6 +115,34 @@ model SalaryInfo {
   user              User     @relation(fields: [userId], references: [id])
 
   @@map("salary_info")
+}
+
+model PrivateInfo {
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
+
+  // Personal Info
+  dateOfBirth     DateTime?
+  residingAddress String?
+  nationality     String?
+  personalEmail   String?
+  gender          String?
+  maritalStatus   String?
+  dateOfJoining   DateTime?
+
+  // Bank Details
+  accountNumber String?
+  bankName      String?
+  ifscCode      String?
+  panNo         String?
+  uanNo         String?
+  empCode       String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("private_info")
 }
 
 model AppData {

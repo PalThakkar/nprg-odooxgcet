@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server';
 import { verifyToken } from '@/lib/auth';
 
 const PROTECTED_ROUTES = ['/dashboard', '/api/data', '/api/leaves']; // Add more path prefixes
-const ADMIN_ROUTES = ['/dashboard/admin', '/api/leaves/admin', '/api/salary/admin'];
+const ADMIN_ROUTES = ['/dashboard/admin', '/api/leaves/admin', '/api/salary/admin', '/api/admin/employees'];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -21,12 +21,12 @@ export async function middleware(request: NextRequest) {
   // For this generic setup, we'll check Authorization header first, then cookie 'token'
   let token = request.headers.get('Authorization')?.split(' ')[1];
   if (!token) {
-      token = request.cookies.get('token')?.value;
+    token = request.cookies.get('token')?.value;
   }
 
   if (!token) {
     if (pathname.startsWith('/api')) {
-       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     return NextResponse.redirect(new URL('/auth/login', request.url));
   }
@@ -35,17 +35,17 @@ export async function middleware(request: NextRequest) {
   const payload = await verifyToken(token);
   if (!payload) {
     if (pathname.startsWith('/api')) {
-       return NextResponse.json({ error: 'Invalid Token' }, { status: 401 });
+      return NextResponse.json({ error: 'Invalid Token' }, { status: 401 });
     }
     return NextResponse.redirect(new URL('/auth/login', request.url));
   }
 
   // 4. RBAC Check (Admin)
   if (isAdminRoute && (payload as any).role !== 'admin') {
-     if (pathname.startsWith('/api')) {
-        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-     }
-     return NextResponse.redirect(new URL('/dashboard', request.url)); // Redirect to user dashboard
+    if (pathname.startsWith('/api')) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+    return NextResponse.redirect(new URL('/dashboard', request.url)); // Redirect to user dashboard
   }
 
   // 5. Success - Attach user info via headers (optional, for Server Components)
@@ -72,5 +72,6 @@ export const config = {
     '/api/data/:path*',
     '/api/leaves/:path*',
     '/api/salary/:path*',
+    '/api/admin/:path*',
   ],
 };
