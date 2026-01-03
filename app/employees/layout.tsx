@@ -14,16 +14,13 @@ export default function DashboardLayout({
   const navItems = [
     { label: "Dashboard", href: "/employees" },
     { label: "Attendance", href: "/employees/attendance" },
-<<<<<<< HEAD
-    ...(userRole === "admin"
+    { label: "Time Off", href: "/employees/time-off" },
+    ...(user?.role === "admin"
       ? [
         { label: "Employees", href: "/admin/employees" },
         { label: "Leave Approval", href: "/admin/leaves" },
       ]
       : []),
-=======
-    { label: "Time Off", href: "/employees/time-off" },
->>>>>>> 3e215d45055be12feaa5ead47654800aef86bc4c
   ];
 
   return (

@@ -3,35 +3,24 @@
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function LogoutButton() {
     const router = useRouter();
+    const { logout } = useAuth();
     const [loading, setLoading] = useState(false);
 
-<<<<<<< HEAD
     const handleLogout = async () => {
         setLoading(true);
         try {
-            const res = await fetch("/api/auth/logout", {
-                method: "POST",
-            });
-
-            if (res.ok) {
-                router.push("/auth/login");
-                router.refresh(); // Clear any server component cache
-            } else {
-                console.error("Failed to logout");
-            }
+            // Using context logout to ensure client state is cleared
+            logout();
+            router.push("/auth/login");
+            // router.refresh(); // Optional: might be needed to clear server components
         } catch (error) {
             console.error("Error during logout:", error);
-        } finally {
-            // Don't set loading back to false if successful to prevent flicker before redirect
+            setLoading(false);
         }
-=======
-    const handleLogout = () => {
-        logout();
-        router.push("/");
->>>>>>> 3e215d45055be12feaa5ead47654800aef86bc4c
     };
 
     return (
