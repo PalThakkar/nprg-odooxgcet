@@ -73,8 +73,8 @@ export default function AdminLeaveDashboard() {
 
   const filteredLeaves = leaves.filter(
     (l) =>
-      l.user.name.toLowerCase().includes(filter.toLowerCase()) ||
-      l.user.loginId.toLowerCase().includes(filter.toLowerCase())
+      (l.user?.name || "").toLowerCase().includes(filter.toLowerCase()) ||
+      (l.user?.loginId || "").toLowerCase().includes(filter.toLowerCase())
   );
 
   return (
@@ -311,8 +311,8 @@ function LeaveRow({
     <tr
       className="transition-colors group"
       onMouseEnter={(e) =>
-        (e.currentTarget.style.backgroundColor =
-          "color-mix(in srgb, var(--color-slate-800) 30%, transparent)")
+      (e.currentTarget.style.backgroundColor =
+        "color-mix(in srgb, var(--color-slate-800) 30%, transparent)")
       }
       onMouseLeave={(e) =>
         (e.currentTarget.style.backgroundColor = "transparent")

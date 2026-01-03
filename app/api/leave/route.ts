@@ -113,7 +113,8 @@ export async function POST(request: Request) {
             userId,
             startDate: start,
             endDate: end,
-            leaveType,
+            type: leaveType, // Required by schema
+            leaveType,       // Keeping this as it matches the variable name
             reason,
             status: 'pending',
         },

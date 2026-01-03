@@ -4,7 +4,7 @@ import { headers } from 'next/headers';
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { status, adminComment } = await req.json();

@@ -1,14 +1,83 @@
 "use client";
 
-import { useState } from "react";
-import { CheckCircle, Heart } from "lucide-react";
+import { useState, useEffect } from "react";
+import { CheckCircle, Heart, Loader2, AlertCircle } from "lucide-react";
+
+interface LeaveRequest {
+  id: string;
+  startDate: string;
+  endDate: string;
+  type: string;
+  status: string;
+  reason: string;
+}
+
+interface LeaveBalance {
+  paidDaysLeft: number;
+  sickDaysLeft: number;
+}
 
 export default function TimeOffPage() {
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [requests, setRequests] = useState<LeaveRequest[]>([]);
+  const [balance, setBalance] = useState<LeaveBalance | null>(null);
+
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [type, setType] = useState("Paid");
   const [reason, setReason] = useState("");
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const res = await fetch("/api/leaves");
+      const data = await res.json();
+      if (res.ok) {
+        setRequests(data.requests || []);
+        setBalance(data.balance);
+      } else {
+        setError(data.error || "Failed to fetch data");
+      }
+    } catch (err) {
+      setError("An unexpected error occurred");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!startDate || !endDate || !reason) return;
+    setSubmitting(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/leaves", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ startDate, endDate, type, reason }),
+      });
+      if (res.ok) {
+        const newLeave = await res.json();
+        setRequests([newLeave, ...requests]);
+        setOpen(false);
+        setStartDate("");
+        setEndDate("");
+        setReason("");
+      } else {
+        const data = await res.json();
+        setError(data.error || "Failed to submit request");
+      }
+    } catch (err) {
+      setError("Failed to submit request");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <div
@@ -36,6 +105,13 @@ export default function TimeOffPage() {
           </button>
         </div>
 
+        {error && (
+          <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-xl flex items-center gap-3 text-red-500">
+            <AlertCircle size={20} />
+            <p className="text-sm font-medium">{error}</p>
+          </div>
+        )}
+
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="stat-card">
@@ -51,7 +127,7 @@ export default function TimeOffPage() {
                   className="text-4xl font-bold"
                   style={{ color: "var(--color-white)" }}
                 >
-                  24
+                  {balance?.paidDaysLeft ?? 24}
                 </p>
                 <p
                   className="text-xs mt-2"
@@ -87,7 +163,7 @@ export default function TimeOffPage() {
                   className="text-4xl font-bold"
                   style={{ color: "var(--color-white)" }}
                 >
-                  7
+                  {balance?.sickDaysLeft ?? 7}
                 </p>
                 <p
                   className="text-xs mt-2"
@@ -118,7 +194,7 @@ export default function TimeOffPage() {
               className="text-lg font-semibold"
               style={{ color: "var(--color-white)" }}
             >
-              Time Off Requests
+              My Time Off Requests
             </h2>
           </div>
           <div className="overflow-x-auto">
@@ -134,19 +210,7 @@ export default function TimeOffPage() {
                     className="px-8 py-4 text-left text-sm font-semibold"
                     style={{ color: "var(--primary)" }}
                   >
-                    Employee
-                  </th>
-                  <th
-                    className="px-8 py-4 text-left text-sm font-semibold"
-                    style={{ color: "var(--primary)" }}
-                  >
-                    Start Date
-                  </th>
-                  <th
-                    className="px-8 py-4 text-left text-sm font-semibold"
-                    style={{ color: "var(--primary)" }}
-                  >
-                    End Date
+                    Dates
                   </th>
                   <th
                     className="px-8 py-4 text-left text-sm font-semibold"
@@ -158,95 +222,58 @@ export default function TimeOffPage() {
                     className="px-8 py-4 text-left text-sm font-semibold"
                     style={{ color: "var(--primary)" }}
                   >
+                    Reason
+                  </th>
+                  <th
+                    className="px-8 py-4 text-left text-sm font-semibold"
+                    style={{ color: "var(--primary)" }}
+                  >
                     Status
                   </th>
                 </tr>
               </thead>
               <tbody style={{ borderColor: "rgba(51, 65, 85, 0.5)" }}>
-                <tr className="table-row">
-                  <td
-                    className="px-8 py-4 font-medium"
-                    style={{ color: "var(--color-slate-300)" }}
-                  >
-                    Emp Name
-                  </td>
-                  <td
-                    className="px-8 py-4"
-                    style={{ color: "var(--color-slate-300)" }}
-                  >
-                    28/10/2025
-                  </td>
-                  <td
-                    className="px-8 py-4"
-                    style={{ color: "var(--color-slate-300)" }}
-                  >
-                    28/10/2025
-                  </td>
-                  <td className="px-8 py-4">
-                    <span
-                      className="px-3 py-1 rounded-full text-xs font-semibold"
-                      style={{
-                        backgroundColor: "rgba(16, 185, 129, 0.2)",
-                        color: "var(--color-emerald-500)",
-                      }}
-                    >
-                      Paid Leave
-                    </span>
-                  </td>
-                  <td className="px-8 py-4">
-                    <span
-                      className="px-3 py-1 rounded-full text-xs font-semibold"
-                      style={{
-                        backgroundColor: "rgba(234, 179, 8, 0.2)",
-                        color: "var(--color-yellow-500)",
-                      }}
-                    >
-                      Pending
-                    </span>
-                  </td>
-                </tr>
-                <tr className="table-row">
-                  <td
-                    className="px-8 py-4 font-medium"
-                    style={{ color: "var(--color-slate-300)" }}
-                  >
-                    Emp Name
-                  </td>
-                  <td
-                    className="px-8 py-4"
-                    style={{ color: "var(--color-slate-300)" }}
-                  >
-                    20/10/2025
-                  </td>
-                  <td
-                    className="px-8 py-4"
-                    style={{ color: "var(--color-slate-300)" }}
-                  >
-                    21/10/2025
-                  </td>
-                  <td className="px-8 py-4">
-                    <span
-                      className="px-3 py-1 rounded-full text-xs font-semibold"
-                      style={{
-                        backgroundColor: "rgba(59, 130, 246, 0.2)",
-                        color: "var(--color-blue-500)",
-                      }}
-                    >
-                      Sick Leave
-                    </span>
-                  </td>
-                  <td className="px-8 py-4">
-                    <span
-                      className="px-3 py-1 rounded-full text-xs font-semibold"
-                      style={{
-                        backgroundColor: "rgba(16, 185, 129, 0.2)",
-                        color: "var(--color-emerald-500)",
-                      }}
-                    >
-                      Approved
-                    </span>
-                  </td>
-                </tr>
+                {loading ? (
+                  <tr>
+                    <td colSpan={4} className="px-8 py-10 text-center">
+                      <div className="flex flex-col items-center gap-2">
+                        <Loader2 className="w-6 h-6 animate-spin text-teal-500" />
+                        <p className="text-sm text-slate-400">Loading your requests...</p>
+                      </div>
+                    </td>
+                  </tr>
+                ) : requests.length === 0 ? (
+                  <tr>
+                    <td colSpan={4} className="px-8 py-10 text-center">
+                      <p className="text-sm text-slate-400">No time off requests found.</p>
+                    </td>
+                  </tr>
+                ) : (
+                  requests.map((req) => (
+                    <tr key={req.id} className="table-row">
+                      <td
+                        className="px-8 py-4"
+                        style={{ color: "var(--color-slate-300)" }}
+                      >
+                        {new Date(req.startDate).toLocaleDateString()} - {new Date(req.endDate).toLocaleDateString()}
+                      </td>
+                      <td className="px-8 py-4 text-sm font-medium" style={{ color: "var(--color-slate-300)" }}>
+                        {req.type}
+                      </td>
+                      <td className="px-8 py-4 text-sm max-w-xs truncate" style={{ color: "var(--color-slate-400)" }}>
+                        {req.reason}
+                      </td>
+                      <td className="px-8 py-4">
+                        <span
+                          className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest"
+                          style={getStatusBadgeStyle(req.status)}
+                        >
+                          {req.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -346,16 +373,11 @@ export default function TimeOffPage() {
                 Cancel
               </button>
               <button
-                className="btn-primary"
-                onClick={() => {
-                  console.log({ startDate, endDate, type, reason });
-                  setOpen(false);
-                  setStartDate("");
-                  setEndDate("");
-                  setType("Paid");
-                  setReason("");
-                }}
+                className="btn-primary flex items-center gap-2"
+                onClick={handleSubmit}
+                disabled={submitting || !startDate || !endDate || !reason}
               >
+                {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
                 Submit Request
               </button>
             </div>
@@ -364,4 +386,17 @@ export default function TimeOffPage() {
       )}
     </div>
   );
+}
+
+function getStatusBadgeStyle(status: string) {
+  switch (status.toUpperCase()) {
+    case 'PENDING':
+      return { backgroundColor: "rgba(234, 179, 8, 0.2)", color: "var(--color-yellow-500)" };
+    case 'APPROVED':
+      return { backgroundColor: "rgba(16, 185, 129, 0.2)", color: "var(--color-emerald-500)" };
+    case 'REJECTED':
+      return { backgroundColor: "rgba(239, 68, 68, 0.2)", color: "var(--color-red-500)" };
+    default:
+      return { backgroundColor: "rgba(148, 163, 184, 0.2)", color: "var(--color-slate-400)" };
+  }
 }
